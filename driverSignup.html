@@ -45,56 +45,46 @@
 	
 	</div>
 	</div>
-</header>
-<div id="home">
-	<div class="container">
-
-        <div class="row home single-page-nav">
-		<div class="col-md-offset-2 col-lg-offset-3 col-lg-6 col-md-8 col-sm-12">
-			<fieldset style="width:30%"><legend>LOG-IN HERE</legend>
-			<form method="POST" action="php/connectivity.php"> User <br>
-			<input type="text" name="user" size="40"><br> Password <br>
-			<input type="password" name="pass" size="40"><br> 
-			<input id="button" type="submit" name="submit" value="Log-In"> 
-			</form> 
-			</fieldset> 
-		</div>
-		</div>
-	</div>
-</div>
+</header> 
+<div id="home" class="container"> 
+	<fieldset style="width:40%"><legend>Driver Registration Form</legend> 
+	<form method="POST" action="php/connectivity-driver-sign-up.php">
+	<table border="0"> 
+	<tr> 
+		
+		<td>First Name</td><td> <input type="text" name="Fname"></td> 
+	</tr> 
+	<tr> 
+		<td>Last Name</td><td> <input type="text" name="Lname"></td> 
+	</tr> 
+	<tr> 
+		<td>Email</td><td> <input type="text" name="email"></td> 
+	</tr> 
+	<tr> 
+		<td>Primary Phone No</td><td> <input type="number" name="Prim_Phone"></td> 
+	</tr> 
+	<tr> 
+		<td>Secondary Phone No</td><td> <input type="number" name="Sec_Phone"></td> 
+	</tr> 
+	<tr> 
+		<td>Driver License No</td><td> <input type="number" name="DriverLicence"></td> 
+	</tr>
+	<tr> 
+		<td>UserName</td><td> <input type="text" name="user"></td>
+	</tr> 
+		<tr> 
+		<td>Password</td><td> <input type="password" name="pass"></td>
+	</tr>
+	<tr>
+		<td>Confirm Password </td><td><input type="password" name="cpass"></td>
+	</tr>
+	<tr> 
+		<td><input id="button" type="submit" name="submit" value="Sign-Up"></td>
+	</tr> 
+	</form> 
+	</table> 
+	</fieldset> 
+	</div> 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
