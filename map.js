@@ -13,47 +13,46 @@ function initMap() {
   var sanMateoCoordinates = new google.maps.LatLng(37.537590,-122.298748);
   var sanFranciscoCoordinates = new google.maps.LatLng(37.799308,-122.397434);
   var haywardCoordinates = new google.maps.LatLng(37.629494,-122.046862);
+    
+// car image source
+  var carIcon = { url: 'http://localhost/Speed-Rider/car_icon.png', size: new google.maps.Size(20, 32), origin: new google.maps.Point(0, 0), anchor: new google.maps.Point(0, 32), scale: 4,
+                title: 'Driver'};
 
   // Danville driver
   var danvilleMarker = new google.maps.Marker({
-    icon: { path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW, scale: 4 },
+    icon: carIcon,
     draggable: true,
     map: map });
   danvilleMarker.setPosition(danvilleCoordinates);
     
     // san Jose driver
   var sanJoseMarker = new google.maps.Marker({
-    icon: { path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW, scale: 4 },
+    icon: carIcon,
     draggable: true,
     map: map });
   sanJoseMarker.setPosition(sanJoseCoordinates);
     
     // san Francisco driver
  var sanFranciscoMarker = new google.maps.Marker({
-    icon: { path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW, scale: 4 },
+    icon: carIcon,
     draggable: true,
     map: map });
   sanFranciscoMarker.setPosition(sanFranciscoCoordinates);
     
     // san Mateo driver
      var sanMateoMarker = new google.maps.Marker({
-    icon: { path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW, scale: 4 },
+    icon: carIcon,
     draggable: true,
     map: map });
   sanMateoMarker.setPosition(sanMateoCoordinates);
     
     
     // hayward driver
-         var haywardMarker = new google.maps.Marker({
-    icon: { path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW, scale: 4 },
+var haywardMarker = new google.maps.Marker({
+    icon: carIcon,
     draggable: true,
     map: map });
 haywardMarker.setPosition(haywardCoordinates);
-
-
-    
-    
-    
 
   // Try HTML5 geolocation.
   if (navigator.geolocation) {
