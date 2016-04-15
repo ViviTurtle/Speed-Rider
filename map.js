@@ -8,18 +8,18 @@ function initMap() {
   var infoWindow = new google.maps.InfoWindow({map: map});
     
   // Hardcoded driver coordinates
-  var sanRamonCoordinates = new google.maps.LatLng(37.729057,-121.934515);
+  var danvilleCoordinates = new google.maps.LatLng(37.823791,-122.004341);
   var sanJoseCoordinates = new google.maps.LatLng(37.335204,-121.881029);
   var sanMateoCoordinates = new google.maps.LatLng(37.537590,-122.298748);
   var sanFranciscoCoordinates = new google.maps.LatLng(37.799308,-122.397434);
   var haywardCoordinates = new google.maps.LatLng(37.629494,-122.046862);
 
-  // san ramon driver
-  var sanRamonMarker = new google.maps.Marker({
+  // Danville driver
+  var danvilleMarker = new google.maps.Marker({
     icon: { path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW, scale: 4 },
     draggable: true,
     map: map });
-  sanRamonMarker.setPosition(sanRamonCoordinates);
+  danvilleMarker.setPosition(danvilleCoordinates);
     
     // san Jose driver
   var sanJoseMarker = new google.maps.Marker({
@@ -35,12 +35,20 @@ function initMap() {
     map: map });
   sanFranciscoMarker.setPosition(sanFranciscoCoordinates);
     
-    // san Mateo
+    // san Mateo driver
      var sanMateoMarker = new google.maps.Marker({
     icon: { path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW, scale: 4 },
     draggable: true,
     map: map });
   sanMateoMarker.setPosition(sanMateoCoordinates);
+    
+    
+    // hayward driver
+         var haywardMarker = new google.maps.Marker({
+    icon: { path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW, scale: 4 },
+    draggable: true,
+    map: map });
+haywardMarker.setPosition(haywardCoordinates);
 
 
     
