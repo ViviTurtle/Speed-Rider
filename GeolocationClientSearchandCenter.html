@@ -10,9 +10,11 @@
             margin: 0;
             padding: 0;
         }
+
         #map {
             height: 100%;
         }
+
         .controls {
             margin-top: 10px;
             border: 1px solid transparent;
@@ -81,17 +83,14 @@
      * Initialization of Grabbing Geolocation
      */
     function initCoords() {
-        var bayarea = new google.maps.LatLng(37.547841,-122.003326);
-        var browserSupportFlag =  new Boolean();
-
-
+        var bayarea = new google.maps.LatLng(37.547841, -122.003326);
+        var browserSupportFlag = Boolean();
         /*
-        Check if geolocation is allowed.
-        */
-
+         Check if geolocation is allowed.
+         */
         if (navigator.geolocation) {
             browserSupportFlag = true;
-            navigator.geolocation.getCurrentPosition(initMap,  function() {
+            navigator.geolocation.getCurrentPosition(initMap, function () {
                 noGeolocation(browserSupportFlag);
             });
         } else {
@@ -114,14 +113,14 @@
     }
 
 
-
-
-
-
-
     function initMap(position) {
-        //This Variable is to convert position into a LatLng object if it isn't already.
+        // This Variable is to convert position into a LatLng object if it isn't already.
         var convert;
+        var driverList = [
+            {lat: 37.20422, lng: -121.84769},
+            {lat: 37.36742, lng: -121.98267},
+            {lat: 37.33413, lng: -121.88052},
+        ];
 
         /**
          * Noticed that the geolocation callback function returns an object of position where
@@ -129,12 +128,11 @@
          * object seems to not always work and gives me errors. Changed all variables instead to
          * google.maps.LatLng() to keep consistent.
          * */
-        if (position instanceof  google.maps.LatLng) {
+        if (position instanceof google.maps.LatLng) {
             var map = new google.maps.Map(document.getElementById('map'), {
-                center: {lat:position.lat(), lng:position.lng()},
+                center: {lat: position.lat(), lng: position.lng()},
                 zoom: 10
             });
-  
 
             convert = position;
         } else {
@@ -143,11 +141,10 @@
                 zoom: 10
             });
 
-
             convert = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
         }
 
-        //Add layer of Traffic
+        // Add layer of Traffic
         var traffic = new google.maps.TrafficLayer();
         traffic.setMap(map);
 
@@ -164,14 +161,14 @@
 
         var infowindow = new google.maps.InfoWindow();
 
+        // User Marker
         var marker = new google.maps.Marker({
-            position: {lat:convert.lat() , lng:convert.lng()},
+            position: {lat: convert.lat(), lng: convert.lng()},
             map: map,
             anchorPoint: new google.maps.Point(0, -29),
-            draggable:false
+            draggable: false
         });
-
-        marker.setIcon( ({
+        marker.setIcon(({
             url: 'PassM.png',
             size: new google.maps.Size(75, 75),
             origin: new google.maps.Point(0, 0),
@@ -179,7 +176,18 @@
 
         }));
 
-        autocomplete.addListener('place_changed', function() {
+        // Driver Markers
+        for (var i = 0; i < driverList.length; i++){
+            var driverMarker = new google.maps.Marker({
+                position: driverList[i],
+                map: map,
+                draggable: false
+            });
+            driverMarker.setVisible(true);
+        }
+
+
+        autocomplete.addListener('place_changed', function () {
             infowindow.close();
             marker.setVisible(false);
             var place = autocomplete.getPlace();
@@ -213,10 +221,10 @@
         });
 
         // Sets a listener on a radio button to change the filter type on Places
-        // Autocomplete.
+        // Auto-complete
         function setupClickListener(id, types) {
             var radioButton = document.getElementById(id);
-            radioButton.addEventListener('click', function() {
+            radioButton.addEventListener('click', function () {
                 autocomplete.setTypes(types);
             });
         }
