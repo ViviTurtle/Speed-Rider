@@ -73,7 +73,7 @@ while ($row = mysqli_fetch_object($driverL)) {
 
     echo '<br><br>'.$Driv[0].' ';
     foreach($ClName as $key=>$value) {
-        $url='http://216.58.194.202/maps/api/distancematrix/json?units=imperial&origins='.$Driv[1].','.$Driv[2].'&destinations='.$lat[$key].','.$long[$key].'&mode=driving';
+        $url='http://216.58.194.202/maps/api/distancematrix/json?units=imperial&origins='.$Driv[1].','.$Driv[2].'&destinations='.$lat[$key].','.$long[$key].'&mode=driving&traffic_model';
         $json = file_get_contents($url);
         $data = json_decode($json);
 
