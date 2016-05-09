@@ -1,4 +1,4 @@
-USE Speed_Rider;
+USE speeqhyw_Speed_Rider;
 
 -- EXAMPLE TRIGGER
 -- DROP TRIGGER IF EXISTS TR_INIT_CUSTOMER;

@@ -1,6 +1,6 @@
--- DROP DATABASE IF EXISTS Speed_Rider;
--- CREATE DATABASE Speed_Rider;
--- USE Speed_Rider; 
+-- DROP DATABASE IF EXISTS speeqhyw_Speed_Rider;
+-- CREATE DATABASE speeqhyw_Speed_Rider;
+USE speeqhyw_Speed_Rider; 
 
 DROP TABLE IF EXISTS T_CODES;
 CREATE TABLE T_CODES(
