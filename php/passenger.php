@@ -1,6 +1,6 @@
 <?php
-require("./includes/common.php");
-include("./includes/headerL.php");
+require("/includes/common.php");
+include("/includes/headerL.php");
 ?>
 
 
@@ -76,7 +76,7 @@ include("./includes/headerL.php");
             };
 
             $.ajax ({
-                url:   './includes/test.php',
+                url:   '/includes/test.php',
                 type:  "POST",
                 data: curPos,
                 success: function(data){
@@ -121,7 +121,7 @@ include("./includes/headerL.php");
                 draggable: false
             });
             marker.setIcon(({
-                url: './img/PassM.png',
+                url: '/img/PassM.png',
                 size: new google.maps.Size(75, 75),
                 origin: new google.maps.Point(0, 0),
                 anchor: new google.maps.Point(0, 32)
@@ -134,7 +134,7 @@ include("./includes/headerL.php");
                     draggable: false
                 });
                 driverMarker.setIcon(({
-                    url: './img/VanSpriteSmall.png',
+                    url: '/img/VanSpriteSmall.png',
                     size: new google.maps.Size(75, 75),
                     origin: new google.maps.Point(0, 0),
                     anchor: new google.maps.Point(0, 32)
@@ -231,10 +231,10 @@ include("./includes/headerL.php");
 
 
 <!-- jQuery -->
-<script src="./js/jquery-1.12.3.min.js"></script>
+<script src="/js/jquery-1.12.3.min.js"></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="./js/bootstrap.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
 
 <!-- Custom Theme JavaScript -->
 <script>

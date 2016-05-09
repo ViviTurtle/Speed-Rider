@@ -12,8 +12,8 @@ if(!isset($_SESSION['userRegister']) || empty($_SESSION['userRegister'])) {
 }
 
 // connection to the database and start the session
-    include("./includes/header.php");
-    require("./includes/common.php");
+    include("/includes/header.php");
+    require("/includes/common.php");
 
 echo $UserInf;
 
@@ -83,10 +83,10 @@ if(!empty($_POST)) {
 </header>
 
 <!-- jQuery -->
-<script src="./js/jquery-1.12.3.min.js"></script>
+<script src="/js/jquery-1.12.3.min.js"></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="./js/bootstrap.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
 
 <!-- Custom Theme JavaScript -->
 <script>
