@@ -1,3 +1,97 @@
+<?php
+require("../includes/common.php");
+include("../includes/headerL.php");
+
+
+$db = new mysqli($host,$username,$password,$dbname);
+
+
+/* check connection */
+if (mysqli_connect_errno()) {
+    printf("Connect failed: %s\n", mysqli_connect_error());
+    exit();
+}
+
+$query="CALL SP_GET_DRIV_LFJOB;";
+
+
+
+$driverL = $db->query($query);
+
+
+
+
+    //Client $test = $_POST['position'];
+    $ClName = $UserInf->USERNAME;
+    $lat = $_GET["lat"];
+    $long =  $_GET["lon"];
+
+
+/**
+ * Takes one driver at a time. Eventually it will assign.
+ */
+while ($row = mysqli_fetch_object($driverL)) {
+
+
+    $Driv[] = $row->USERNAME;
+    $Lat[] = $row->CURRENT_LATITUDE;
+    $Long[] = $row->CURRENT_LONGITUDE;
+}
+
+foreach($Driv as $key=>$value) {
+
+    $url='http://216.58.194.202/maps/api/distancematrix/json?units=imperial&origins='.$lat.','.$long.'&destinations='.$Lat[$key].','.$Long[$key].'&mode=driving&traffic_model';
+
+    $json = file_get_contents($url);
+    $data = json_decode($json);
+
+    $time = $data->rows[0]->elements[0]->duration->text;
+    $time = intval(preg_replace('/[^0-9]+/', '', $time), 10);
+    $clTimes[] = array('uname'=>$Driv[$key], 'time'=>$time);
+
+
+}
+
+// print_r($clTimes);
+
+usort($clTimes, function($a, $b) {
+    return $a['time'] - $b['time'];
+});
+
+// echo '<br><br>Sorted Array<br>';
+// print_r($clTimes);
+
+// echo '<br><br>'.$Driv[0].' is paired with '.$ClName.'<br>';
+
+
+
+$db->close();
+
+
+$db = new mysqli($host,$username,$password,$dbname);
+$query="CALL SP_GET_USER_LOC('$Driv[0]')";
+
+$driverLoc = $db->query($query);
+
+
+
+$row = mysqli_fetch_object($driverLoc);
+$driverLat = $row->CURRENT_LATITUDE;
+$driverLong = $row->CURRENT_LONGITUDE;
+
+
+$db->close();
+$db = new mysqli($host,$username,$password,$dbname);
+$query="CALL SP_LINK_USER('$Driv[0]','$ClName', $lat, $long, $driverLat , $driverLong)";
+$db->query($query);
+echo $query;
+
+unset($clTimes);
+
+unset($Driv);
+$db->close();
+
+?>
 
 
 <head>
@@ -23,20 +117,39 @@
     text-align: center;
 }
 </style>
- <script>
+</header>
 
-     function getLocationP() {
-           if (navigator.geolocation) {
-               navigator.geolocation.getCurrentPosition(showPositionP);
-           }
-       }
 
-      function showPositionP(position) {
 
-       var lat = position.coords.latitude;
-       var lon = position.coords.longitude;
-       window.location.href = "/php/GetDriver.php?lat=" + lat + "&lon=" + lon;
-        }
+<!-- About -->
+<section id="about" class="about">
+
+    <input id="pac-input" class="controls" type="text"
+           placeholder="Enter a location">
+    <div id="type-selector" class="controls">
+        <input type="radio" name="type" id="changetype-all" checked="checked">
+        <label for="changetype-all">All</label>
+
+        <input type="radio" name="type" id="changetype-establishment">
+        <label for="changetype-establishment">Establishments</label>
+
+        <input type="radio" name="type" id="changetype-address">
+        <label for="changetype-address">Addresses</label>
+
+        <input type="radio" name="type" id="changetype-geocode">
+        <label for="changetype-geocode">Geocodes</label>
+    </div>
+    <br/>
+    <br/>
+
+
+    <div id="map" class="col-md-8 col-md-offset-2" style="height: 75%;">
+        
+    </div>
+
+    <script>
+
+
         /**
          * Initialization of Grabbing Geolocation
          */
@@ -189,45 +302,7 @@
             setupClickListener('changetype-establishment', ['establishment']);
             setupClickListener('changetype-geocode', ['geocode']);
         }
-</script>
-
-</header>
-
-
-
-<!-- About -->
-<section id="about" class="about">
-
-    <input id="pac-input" class="controls" type="text"
-           placeholder="Enter a location">
-    <div id="type-selector" class="controls">
-        <input type="radio" name="type" id="changetype-all" checked="checked">
-        <label for="changetype-all">All</label>
-
-        <input type="radio" name="type" id="changetype-establishment">
-        <label for="changetype-establishment">Establishments</label>
-
-        <input type="radio" name="type" id="changetype-address">
-        <label for="changetype-address">Addresses</label>
-
-        <input type="radio" name="type" id="changetype-geocode">
-        <label for="changetype-geocode">Geocodes</label>
-    </div>
-    <br/>
-    <br/>
-
-
-    <div id="map" class="col-md-8 col-md-offset-2" style="height: 75%;">
-        
-    </div>
-
-    <div class="vcenter col-md-10 col-md-offset-1 "> 
-    <form action="/php/calcCompTime.php">
-        <input type="button" value="Request a Driver" onclick="getLocationP()" class="btn-teal" style="height: 100px; width: 300px; font-size: 30px;" />
-    </form>
-    </div>
-
-   
+    </script>
 
 
 </section>
@@ -309,33 +384,3 @@
         });
     });
 </script>
-
-
-<?php
-require("../includes/common.php");
-include("../includes/headerL.php");
-
-$db = new mysqli($host,$username,$password,$dbname);
-
-/* check connection */
-if (mysqli_connect_errno()) {
-    printf("Connect failed: %s\n", mysqli_connect_error());
-    exit();
-}
-
-$query="CALL SP_GET_DRIV_LFJOB;";
-
-$driverL = $db->query($query);
-
-
-/**
- * Takes one driver at a time. Eventually it will assign.
- */
-while ($row = mysqli_fetch_object($driverL)) {
-
-
-    $Driv[] = $row->USERNAME;
-    $Lat[] = $row->CURRENT_LATITUDE;
-    $Long[] = $row->CURRENT_LONGITUDE;
-}
-?>

@@ -1,129 +1,3 @@
-
-
-<?php
-// connection to the database and start the session
-include("../includes/header.php");
-require("../includes/common.php");
-// This variable will be used to re-display the user's username
-
-
-// checks to determine whether the login form has been submitted
-// If it has, then the login code is run, otherwise the form is displayed
-
-
-if(!empty($_POST)) {
-
-    $usern = $_POST['username'];
-    $username = $_POST['usernamesignup'];
-    if (!empty($usern)) {
-
-        // retreives the user's information from the database using username.
-        $query = "SELECT USER_ID, FNAME, USERNAME, SALTED_HASH, USER_TYPE FROM T_USER WHERE USERNAME ='$usern'";
-
-
-        try {
-            // Execute the query against the database
-            $stmt = $db->query($query);
-            $stmtline = $stmt->fetch_object();
-        } catch (PDOException $ex) {
-            die("Failed to run query: " . $ex->getMessage());
-        }
-
-        $login_ok = false;
-
-        // Retrieve the user data from the database.  If $row is false, then the username
-        // they entered is not registered.
-
-        if ($stmtline) {
-            // Using the password submitted by the user and the salt stored in the database,
-            // we now check to see whether the passwords match by hashing the submitted password
-            // and comparing it to the hashed version already stored in the database.
-            /*$check_password = hash('sha256', $_POST['password'] . $row['SALTED_HASH']);
-            for($round = 0; $round < 65536; $round++)
-            {
-                $check_password = hash('sha256', $check_password . $row['SALTED_HASH']);
-                echo $check_password;
-
-            }*/
-            if ($stmtline->SALTED_HASH == $_POST['password']) {
-                $login_ok = true;
-            }
-
-
-        }
-
-        // If the user logged in successfully, then we send them to the private members-only page
-        // Otherwise, we display a login failed message and show the login form again
-        if ($login_ok) {
-
-            // This stores the user's data into the session at the index 'user'.
-            session_start();
-            $_SESSION['userLogged'] = $stmtline;
-
-            // Redirect the user to the private members-only page.
-            //   header("Location: private.php");
-            // die("Redirecting to: private.php");
-
-
-            if ($stmtline->USER_TYPE == 'CLIET') {
-                header("Location: ./passenger.php");
-
-            } else if ($stmtline->USER_TYPE == 'DRIVR') {
-                header("Location: ./driver.php");
-
-            } else if ($stmtline->USER_TYPE == 'ADMIN') {
-                header("Location: ./ministr.php");
-
-            }
-
-
-        } else {
-            unset($_POST);
-            header("location:./login.php?msg=failed#tologin");
-
-        }
-
-    } else if (!empty($username)) {
-
-        $password = $_POST['passwordsignup'];
-        $usert = $_POST['usertype'];
-        $email = $_POST['emailsignup'];
-
-        // retreives the user's information from the database using username.
-        $query = "SELECT * FROM T_USER WHERE USERNAME ='$username' OR EMAIL = '$email'";
-
-        if (mysqli_num_rows($db->query($query))>0) {
-            unset($_POST);
-            header("location:./login.php?msg=exist#toregister");
-
-        } else {
-            session_start();
-            $_SESSION['userRegister'] = $username;
-
-            $query = "INSERT INTO T_USER (USERNAME, SALTED_HASH, FNAME, LNAME, EMAIL, PRIM_PHONE, USER_TYPE, STATUS_TYPE) VALUES ('$username','$password','NotEntered','NotEntered','$email','00000000','$usert', 'OFFLN')";
-            $db->query($query);
-            header("location:./register.php");
-
-
-        }
-
-
-/*
-
-
-*/
-
-
-
-    }
-
-
-
-
-}
-
-?>
-
 <!-- Header -->
 <header id="top" class="header">
 
@@ -236,6 +110,34 @@ if(!empty($_POST)) {
                                 }
                             }
 
+
+                           function getLocationP() {
+                               if (navigator.geolocation) {
+                                   navigator.geolocation.getCurrentPosition(showPositionP);
+                               }
+                           }
+
+                            function getLocationD() {
+                               if (navigator.geolocation) {
+                                   navigator.geolocation.getCurrentPosition(showPositionD);
+                               }
+                           }
+
+
+                           function showPositionD(position) {
+
+                               var lat = position.coords.latitude;
+                               var lon = position.coords.longitude;
+                               window.location.href = "/php/driver.php?lat=" + lat + "&lon=" + lon;
+
+                           }
+
+                          function showPositionP(position) {
+
+                           var lat = position.coords.latitude;
+                           var lon = position.coords.longitude;
+                           window.location.href = "/php/passenger.php?lat=" + lat + "&lon=" + lon;
+                       }
                         </script>
 
 
@@ -295,3 +197,129 @@ if(!empty($_POST)) {
 </body>
 
 </html>
+
+
+<?php
+// connection to the database and start the session
+include("../includes/header.php");
+require("../includes/common.php");
+// This variable will be used to re-display the user's username
+
+
+// checks to determine whether the login form has been submitted
+// If it has, then the login code is run, otherwise the form is displayed
+
+
+if(!empty($_POST)) {
+
+    $usern = $_POST['username'];
+    $username = $_POST['usernamesignup'];
+    if (!empty($usern)) {
+
+        // retreives the user's information from the database using username.
+        $query = "SELECT USER_ID, FNAME, USERNAME, SALTED_HASH, USER_TYPE FROM T_USER WHERE USERNAME ='$usern'";
+
+
+        try {
+            // Execute the query against the database
+            $stmt = $db->query($query);
+            $stmtline = $stmt->fetch_object();
+        } catch (PDOException $ex) {
+            die("Failed to run query: " . $ex->getMessage());
+        }
+
+        $login_ok = false;
+
+        // Retrieve the user data from the database.  If $row is false, then the username
+        // they entered is not registered.
+
+        if ($stmtline) {
+            // Using the password submitted by the user and the salt stored in the database,
+            // we now check to see whether the passwords match by hashing the submitted password
+            // and comparing it to the hashed version already stored in the database.
+            /*$check_password = hash('sha256', $_POST['password'] . $row['SALTED_HASH']);
+            for($round = 0; $round < 65536; $round++)
+            {
+                $check_password = hash('sha256', $check_password . $row['SALTED_HASH']);
+                echo $check_password;
+
+            }*/
+            if ($stmtline->SALTED_HASH == $_POST['password']) {
+                $login_ok = true;
+            }
+
+
+        }
+
+        // If the user logged in successfully, then we send them to the private members-only page
+        // Otherwise, we display a login failed message and show the login form again
+        if ($login_ok) {
+
+            // This stores the user's data into the session at the index 'user'.
+            session_start();
+            $_SESSION['userLogged'] = $stmtline;
+
+            // Redirect the user to the private members-only page.
+            //   header("Location: private.php");
+            // die("Redirecting to: private.php");
+
+
+            if ($stmtline->USER_TYPE == 'CLIET') {
+                // header("Location: ./passenger.php");
+                echo "<script> getLocationP(); </script>";
+
+            } else if ($stmtline->USER_TYPE == 'DRIVR') {
+                echo "<script> getLocationD(); </script>";
+
+            } else if ($stmtline->USER_TYPE == 'ADMIN') {
+               // window.location.href = "/includes/minstr.php?lat=" + lat + "&lon=" + lon;
+            }
+
+
+        } else {
+            unset($_POST);
+            header("location:./login.php?msg=failed#tologin");
+
+        }
+
+    } else if (!empty($username)) {
+
+        $password = $_POST['passwordsignup'];
+        $usert = $_POST['usertype'];
+        $email = $_POST['emailsignup'];
+
+        // retreives the user's information from the database using username.
+        $query = "SELECT * FROM T_USER WHERE USERNAME ='$username' OR EMAIL = '$email'";
+
+        if (mysqli_num_rows($db->query($query))>0) {
+            unset($_POST);
+            header("location:./login.php?msg=exist#toregister");
+
+        } else {
+            session_start();
+            $_SESSION['userRegister'] = $username;
+
+            $query = "INSERT INTO T_USER (USERNAME, SALTED_HASH, FNAME, LNAME, EMAIL, PRIM_PHONE, USER_TYPE, STATUS_TYPE) VALUES ('$username','$password','NotEntered','NotEntered','$email','00000000','$usert', 'OFFLN')";
+            $db->query($query);
+            header("location:./register.php");
+
+
+        }
+
+
+/*
+
+
+*/
+
+
+
+    }
+
+
+
+
+}
+
+?>
+
