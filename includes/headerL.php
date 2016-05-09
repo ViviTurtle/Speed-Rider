@@ -6,7 +6,7 @@
 <?php
 session_start();
 if(!isset($_SESSION['userLogged']) || empty($_SESSION['userLogged'])) {
-        header('Location: ./loginold.php');
+        header('Location:../php/login.php');
         exit;
 } else {
     $UserInf = $_SESSION['userLogged'];
@@ -36,19 +36,19 @@ if(!isset($_SESSION['userLogged']) || empty($_SESSION['userLogged'])) {
     <title>Speed Rider</title>
 
     <!-- Bootstrap Core CSS -->
-    <link href="./css/styleguide.css" rel="stylesheet">
+    <link href="/css/styleguide.css" rel="stylesheet">
 
     <!-- Custom CSS -->
-    <link href="./css/style.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
 
     <!-- Custom Fonts -->
-    <link href="./font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     <link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
 
     <!-- jQuery -->
-    <script src="./js/jquery-1.12.3.min.js"></script>
-    <script src="./js/header.js"></script>
-    <script type="text/javascript" src="./js/modernizr.custom.86080.js"></script>
+    <script src="/js/jquery-1.12.3.min.js"></script>
+    <script src="/js/header.js"></script>
+    <script type="text/javascript" src="/js/modernizr.custom.86080.js"></script>
 
 
 
@@ -68,15 +68,15 @@ if(!isset($_SESSION['userLogged']) || empty($_SESSION['userLogged'])) {
 <!-- Navigation Bar -->
 <div class = "navbartop">
     
-    <a href="."><img src="./img/logowhite.png" class="logo" alt="SpeedRider"></a>
+    <a href="."><img src="/img/logowhite.png" class="logo" alt="SpeedRider"></a>
     <ul class = "navattop">
         <li><?php echo '<a id = "login-trigger">Welcome <b>'.$UserInf->FNAME.'</b><span>▲</span>:</a>' ?>
             <div id="login-content">
-                <a href="./index.html">Logout</a>
+                <a href="../index.html">Logout</a>
             </div>
             
         </li>
-        <li><a href="./index.html">Home</a></li>
+        <li><a href="../index.html">Home</a></li>
         <li><a href="">About</a>
 
         </li>
@@ -89,7 +89,7 @@ if(!isset($_SESSION['userLogged']) || empty($_SESSION['userLogged'])) {
             <ul class="sidebar-nav">
                 <a id="menu-close" href="#" class="btn btn-light btn-lg pull-right toggle"><i class="fa fa-times"></i></a>
                 <li class="sidebar-brand">
-                    <?php echo '<a href="loginold.php" onclick = $("#login-content").click();>'.$UserInf->FNAME.'\'s Account</a>'?>
+                    <?php echo '<a href="../php/login.php" onclick = $("#login-content").click();>'.$UserInf->FNAME.'\'s Account</a>'?>
 
                 </li>
                 <li>

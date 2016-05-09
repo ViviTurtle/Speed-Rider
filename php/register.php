@@ -12,8 +12,8 @@ if(!isset($_SESSION['userRegister']) || empty($_SESSION['userRegister'])) {
 }
 
 // connection to the database and start the session
-    include("/includes/header.php");
-    require("/includes/common.php");
+    include("../includes/header.php");
+    require("../includes/common.php");
 
 echo $UserInf;
 

@@ -1,7 +1,7 @@
 <?php
 
-require("/includes/common.php");
-include("/includes/headerL.php");
+require("../includes/common.php");
+include("../includes/headerL.php");
 
 
 ?>

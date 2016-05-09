@@ -2,8 +2,8 @@
 
 <?php
 // connection to the database and start the session
-include("/includes/header.php");
-require("/includes/common.php");
+include("../includes/header.php");
+require("../includes/common.php");
 // This variable will be used to re-display the user's username
 
 
@@ -79,7 +79,7 @@ if(!empty($_POST)) {
 
         } else {
             unset($_POST);
-            header("location:login.php?msg=failed#tologin");
+            header("location:./login.php?msg=failed#tologin");
 
         }
 
@@ -94,7 +94,7 @@ if(!empty($_POST)) {
 
         if (mysqli_num_rows($db->query($query))>0) {
             unset($_POST);
-            header("location:login.php?msg=exist#toregister");
+            header("location:./login.php?msg=exist#toregister");
 
         } else {
             session_start();
@@ -102,7 +102,7 @@ if(!empty($_POST)) {
 
             $query = "INSERT INTO T_USER (USERNAME, SALTED_HASH, FNAME, LNAME, EMAIL, PRIM_PHONE, USER_TYPE, STATUS_TYPE) VALUES ('$username','$password','NotEntered','NotEntered','$email','00000000','$usert', 'OFFLN')";
             $db->query($query);
-            header("location:register.php");
+            header("location:./register.php");
 
 
         }
