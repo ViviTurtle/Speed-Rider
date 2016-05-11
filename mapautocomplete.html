@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Place Autocomplete</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        height: 100%;
+      }
+      .controls {
+        margin-top: 10px;
+        border: 1px solid transparent;
+        border-radius: 2px 0 0 2px;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        height: 32px;
+        outline: none;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      }
+
+      #destination-input {
+        background-color: #fff;
+        font-family: Roboto;
+        font-size: 15px;
+        font-weight: 300;
+        margin-left: 12px;
+        padding: 0 11px 0 13px;
+        text-overflow: ellipsis;
+        width: 200px;
+      }
+     
+      #destination-input:focus {
+        border-color: #4d90fe;
+      }
+      #floating-panel {
+                    background: #fff;
+                    padding: 1px;
+                    font-size: 22px;
+                    font-family: Arial;
+                    border: 1px solid #ccc;
+                    box-shadow: 0 2px 2px rgba(33, 33, 33, 0.4);
+                    display: none;
+                }
+      #floating-panel {
+                    position: absolute;
+                    top: 10px;
+                    left: 25%;
+                    z-index: 5;
+                    background-color: #fff;
+                    padding: 5px;
+                    border: 1px solid #999;
+                    text-align: center;
+                    font-family: 'Roboto','sans-serif';
+                    line-height: 30px;
+                    padding-left: 5px;
+                }
+                #right-panel {
+                    font-family: 'Roboto','sans-serif';
+                    line-height: 30px;
+                    padding-left: 10px;
+                }
+                
+                #right-panel select, #right-panel input {
+                    font-size: 15px;
+                }
+                
+                #right-panel select {
+                    width: 100%;
+                }
+                
+                #right-panel i {
+                    font-size: 12px;
+                }
+                #right-panel {
+                    height: 100%;
+                    float: right;
+                    width: 390px;
+                    overflow: auto;
+                }
+                #map {
+                    margin-right: 400px;
+                }
+
+    </style>
+  </head>
+  <body>
+  <div id="floating-panel">
+    <input id="destination-input" class="controls" type="text"
+        placeholder="Enter a destination location">
+    </div>
+    <div id="right-panel"></div>
+    <div id="map"></div>
+
+    <script>
+        function initMap() {
+        
+        var destination_place_id = null;
+        
+        var map = new google.maps.Map(document.getElementById('map'), {
+          mapTypeControl: false,
+          center: {lat: 37.3351420, lng: -121.8811},
+          zoom: 13
+        });
+        var directionsService = new google.maps.DirectionsService;
+        var directionsDisplay = new google.maps.DirectionsRenderer;
+        directionsDisplay.setMap(map);
+        
+        //showing direction
+        directionsDisplay.setMap(map);
+        directionsDisplay.setPanel(document.getElementById('right-panel'));
+                                              
+        var control = document.getElementById('floating-panel');
+        control.style.display = 'block';
+        map.controls[google.maps.ControlPosition.TOP_CENTER].push(control);
+
+        // get current location
+        var infoWindow = new google.maps.InfoWindow({map: map});
+        var pos;
+                // Try HTML5 geolocation.
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                            pos = {
+                                    lat: position.coords.latitude,
+                                    lng: position.coords.longitude
+                                  };
+                                                                                           
+                    infoWindow.setPosition(pos);
+                    infoWindow.setContent('You are here.');
+                    map.setCenter(pos);
+                    map.setZoom(15);
+                                                                                           
+                    }, function() {
+                        handleLocationError(true, infoWindow, map.getCenter());
+                    });
+                    } else {
+                    // Browser doesn't support Geolocation
+                    handleLocationError(false, infoWindow, map.getCenter());
+                    }
+
+       
+        var destination_input = document.getElementById('destination-input');
+      
+
+        map.controls[google.maps.ControlPosition.TOP_LEFT].push(pos);
+        map.controls[google.maps.ControlPosition.TOP_LEFT].push(destination_input);
+ 
+
+        var destination_autocomplete =
+            new google.maps.places.Autocomplete(destination_input);
+        destination_autocomplete.bindTo('bounds', map);
+
+        // Sets a listener on a radio button to change the filter type on Places
+
+        function expandViewportToFitPlace(map, place) {
+          if (place.geometry.viewport) {
+            map.fitBounds(place.geometry.viewport);
+          } else {
+            map.setCenter(place.geometry.location);
+            map.setZoom(17);
+          }
+        }
+
+       
+        destination_autocomplete.addListener('place_changed', function() {
+          var place = destination_autocomplete.getPlace();
+          if (!place.geometry) {
+            window.alert("Autocomplete's returned place contains no geometry");
+            return;
+          }
+          expandViewportToFitPlace(map, place);
+
+          // If the place has a geometry, store its place ID and route if we have
+          // the other place ID
+          destination_place_id = place.place_id;
+          route(pos, destination_place_id, 
+                directionsService, directionsDisplay);
+        });
+        var trafficLayer = new google.maps.TrafficLayer();
+                                              trafficLayer.setMap(map);
+        function route(pos, destination_place_id, 
+                       directionsService, directionsDisplay) {
+                   directionsService.route({
+            origin: pos,
+            destination: {'placeId': destination_place_id},
+            travelMode: google.maps.TravelMode.DRIVING
+          }, function(response, status) {
+            if (status === google.maps.DirectionsStatus.OK) {
+              directionsDisplay.setDirections(response);
+            } else {
+              window.alert('Directions request failed due to ' + status);
+            }
+          });
+        }
+      }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAAo_ycMAjDvH5v14Z595CyEIr5zbHEnFQ&libraries=places&callback=initMap"
+        async defer></script>
+  </body>
+</html>
