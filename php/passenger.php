@@ -1,4 +1,31 @@
+<?php
+require("../includes/common.php");
+include("../includes/headerL.php");
 
+$db = new mysqli($host,$username,$password,$dbname);
+
+/* check connection */
+if (mysqli_connect_errno()) {
+    printf("Connect failed: %s\n", mysqli_connect_error());
+    exit();
+}
+
+$query="CALL SP_GET_DRIV_LFJOB;";
+
+$driverL = $db->query($query);
+
+
+while ($row = mysqli_fetch_object($driverL)) {
+
+
+    $Driv[] = $row->USERNAME;
+    $Lat[] = $row->CURRENT_LATITUDE;
+    $Long[] = $row->CURRENT_LONGITUDE;
+
+}
+
+
+?>
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -23,7 +50,15 @@
     text-align: center;
 }
 </style>
- <script>
+
+<script>
+
+     /**THIS IS WHERE HOW TO CONVERT FROM PHP TO JSON ARRAY**/
+     var driverLat = <?php echo json_encode($Lat) ?>;
+     var driverLong = <?php echo json_encode($Long) ?>;
+
+     console.log(driverLat);
+     console.log(driverLong);
 
      function getLocationP() {
            if (navigator.geolocation) {
@@ -68,27 +103,21 @@
         function initMap(position) {
             // This Variable is to convert position into a LatLng object if it isn't already.
             var convert;
-            var driverList = [
-                {lat: 37.20422, lng: -121.84769},
-                {lat: 37.36742, lng: -121.98267},
-                {lat: 37.33413, lng: -121.88052},
-            ];
+            var driverList[];
+            /*var driverList = [
+             {lat: 37.20422, lng: -121.84769},
+             {lat: 37.36742, lng: -121.98267},
+             {lat: 37.33413, lng: -121.88052},
+             ];*/
 
-            var curPos = {
-                "lat" : position.coords.latitude,
-                "lon" : position.coords.longitude
-            };
+            for (var i = 0; i < driverLat; i++) {
+                driverList.push({lat: driverLat[i], lng: driverLong[i]});
+            }
 
-            $.ajax ({
-                url:   '/includes/test.php',
-                type:  "POST",
-                data: curPos,
-                success: function(data){
-                    console.log(data);
-                }
-            });
-            /**
-             * Noticed that the geolocation callback function returns an object of position where
+            console.log(driverList[0]);
+        }
+
+     /**     * Noticed that the geolocation callback function returns an object of position where
              * there is this position.location.latitude and position.location.longitude. This type of
              * object seems to not always work and gives me errors. Changed all variables instead to
              * google.maps.LatLng() to keep consistent.
@@ -311,31 +340,4 @@
 </script>
 
 
-<?php
-require("../includes/common.php");
-include("../includes/headerL.php");
 
-$db = new mysqli($host,$username,$password,$dbname);
-
-/* check connection */
-if (mysqli_connect_errno()) {
-    printf("Connect failed: %s\n", mysqli_connect_error());
-    exit();
-}
-
-$query="CALL SP_GET_DRIV_LFJOB;";
-
-$driverL = $db->query($query);
-
-
-/**
- * Takes one driver at a time. Eventually it will assign.
- */
-while ($row = mysqli_fetch_object($driverL)) {
-
-
-    $Driv[] = $row->USERNAME;
-    $Lat[] = $row->CURRENT_LATITUDE;
-    $Long[] = $row->CURRENT_LONGITUDE;
-}
-?>
