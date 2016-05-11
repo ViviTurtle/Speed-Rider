@@ -99,9 +99,6 @@ while ($row = mysqli_fetch_object($driverL)) {
     </form>
     </div>
 
-   
-
-
 </section>
 
 
@@ -142,14 +139,28 @@ while ($row = mysqli_fetch_object($driverL)) {
 <!-- Maps -->
 
     <script>
+        var driverLat = <?php echo json_encode($Lat) ?>;
+        var driverLong = <?php echo json_encode($Long) ?>;
+
+        console.log(driverLat);
+        console.log(driverLong);
+      
         function initMap() {
         
+        driverList = [];
+        for (i = 0; i < driverLat.length; i++){
+          driverList[i] = {lat: Number(driverLat[i]), lng: Number(driverLong[i])};
+        }
+          
+          
         var destination_place_id = null;
         
         var map = new google.maps.Map(document.getElementById('map'), {
           mapTypeControl: false,
           center: {lat: 37.3351420, lng: -121.8811},
-          zoom: 13
+          zoom: 13,
+          scrollwheel: false
+          
         });
         var directionsService = new google.maps.DirectionsService;
         var directionsDisplay = new google.maps.DirectionsRenderer;
@@ -179,6 +190,21 @@ while ($row = mysqli_fetch_object($driverL)) {
                     // Browser doesn't support Geolocation
                     handleLocationError(false, infoWindow, map.getCenter());
                     }
+        // Driver Markers
+            for (var i = 0; i < driverList.length; i++){
+                var driverMarker = new google.maps.Marker({
+                    position: driverList[i],
+                    map: map,
+                    draggable: false
+                });
+                driverMarker.setIcon(({
+                    url: '/img/VanSpriteSmall.png',
+                    size: new google.maps.Size(75, 75),
+                    origin: new google.maps.Point(0, 0),
+                    anchor: new google.maps.Point(0, 32)
+                }));
+                driverMarker.setVisible(true);
+            }
 
     // getting the destination. To get lat and long, use document.getElementById('destination-input'). value
         var destination_input = document.getElementById('destination-input');
