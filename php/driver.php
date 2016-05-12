@@ -106,7 +106,7 @@ include("../includes/headerL.php");
         <p name="Longitude_label" style="color: yellow; font-size: large;">Current Latitude:&nbsp;</p> 
         <p name="Latitude" id="latitude" style="color: yellow; font-size: large;"> </p>
         <?php echo '<p id = "username_hidden" style="visibility: hidden;">'.$UserInf->USERNAME.'</p>'?>
-
+        <p id = "client_username_hidden" style="visibility: hidden;"> </p>
         <p name="Longitude" id="longitude" style="color: yellow; font-size: large;"> </p>
         <p name="Longitude" id="longitude" style="color: yellow; font-size: large;"> </p>
         <p name="Longitude" id="longitude" style="color: yellow; font-size: large;"> </p>
@@ -119,8 +119,16 @@ include("../includes/headerL.php");
                    style="height: 100px; width: 300px; font-size: 30px;" id="btn_request"/>
         </form>
           <form>
-            <input type="button" value="Get Directions" class="btn-teal" 
+            <input type="button" value="Get Directions To Client" class="btn-teal" onclick="getClientLoc()"
                    style="height: 100px; width: 300px; font-size: 30px;" id="btn_directions"/>
+        </form>
+        <form>
+            <input type="button" value="Get Drop-Off Location" class="btn-teal" onclick="getDropOff()"
+                   style="height: 100px; width: 300px; font-size: 30px;" id="btn_dropoff"/>
+        </form>
+             <form>
+            <input type="button" value="Complete Transanction" class="btn-teal" onclick="completeTrans()"
+                   style="height: 100px; width: 300px; font-size: 30px;" id="btn_complete"/>
         </form>
 
         
@@ -128,8 +136,10 @@ include("../includes/headerL.php");
 
     <script>
             $( document ).ready(function() {
-            $("#btn_directions").hide();
-            getLocationD()
+                $("#btn_directions").hide();
+                $("#btn_dropoff").hide();
+                $("#btn_complete").hide();
+                getLocationD()
             });
 
              function getLocationD() {
@@ -178,7 +188,7 @@ include("../includes/headerL.php");
                  window.setTimeout(refresh4ClientHelper, 2000);
             }
             //Will automatically stop when a Client is assigned via passenger.php.
-            //TEST Code: UPDATE T_USER SET STATUS_TYPE = 'INROT' WHERE USERNAME = 'DRIVER1';
+            //TEST Code: CALL SP_LINK_USER('Driver1', 'Client1', -121.80869, 37.23705, 37.23642, -121.79470);
             function refresh4ClientHelper()
             {
                 var username = $("#username_hidden").text();
@@ -189,11 +199,7 @@ include("../includes/headerL.php");
                          // alert($is_chosen);
                          if ($is_chosen != 0) 
                          {
-                            alert("You have a new client!");
-                            $(".overlay").hide();
-                            $(".modal").hide();
-                            $("#btn_request").hide();
-                            $("#btn_directions").show();
+                            getClientUsername();
                          }
                          else
                          {
@@ -208,6 +214,103 @@ include("../includes/headerL.php");
                 xmlhttp.send();
             }
 
+            function getClientUsername()
+            {
+                var username = $("#username_hidden").text();
+                // alert(username);
+                var xmlhttp2 = new XMLHttpRequest();
+                xmlhttp2.onreadystatechange = function() {
+                    if (xmlhttp2.readyState == 4 && xmlhttp2.status == 200) {
+                        $client_user = xmlhttp2.responseText;
+                        alert("You have a new client!");
+                        $(".overlay").hide();
+                        $(".modal").hide();
+                        $("#btn_request").hide();
+                        $("#btn_directions").show();
+                        $("#client_username_hidden").text($client_user);
+                        // alert("Client Usename {$client_user} ")
+                    }
+                };
+                xmlhttp2.open("GET", "getClientUsername.php?username=" + username, true);
+                xmlhttp2.send();
+            }
+
+            function getClientLoc()
+            {
+                $(".overlay").show();
+                $(".modal").show();
+                var client_username = $("#client_username_hidden").text();
+                // alert(client_username);
+                // alert(username);
+                var xmlhttp2 = new XMLHttpRequest();
+                xmlhttp2.onreadystatechange = function() {
+                    if (xmlhttp2.readyState == 4 && xmlhttp2.status == 200) {
+                        $coordinates = xmlhttp2.responseText;
+                        var res = $coordinates.split("|");
+                        drawMap(res[0],res[1])
+                        $(".overlay").hide();
+                        $(".modal").hide();
+                        $("#btn_directions").hide();
+                        $("#btn_dropoff").show();
+                    }
+                };
+                xmlhttp2.open("GET", "getUserLoc.php?username=" + client_username, true);
+                xmlhttp2.send();
+            } 
+
+            function drawMap(dest_longitude, dest_longitude)
+            {
+                //SandyComet Anh draw map here?
+            }
+
+            function getDropOff()
+            {
+                $(".overlay").show();
+                $(".modal").show();
+                var client_username = $("#client_username_hidden").text();
+                // alert(client_username);
+                // alert(username);
+                var xmlhttp2 = new XMLHttpRequest();
+                xmlhttp2.onreadystatechange = function() {
+                    if (xmlhttp2.readyState == 4 && xmlhttp2.status == 200) {
+                        $coordinates = xmlhttp2.responseText;
+                        var res = $coordinates.split("|");
+                        drawMap(res[0],res[1])
+                        $(".overlay").hide();
+                        $(".modal").hide();
+                        $("#btn_dropoff").hide();
+                        $("#btn_complete").show();
+                    }
+                };
+                xmlhttp2.open("GET", "getDropOff.php?username=" + client_username, true);
+                xmlhttp2.send();
+            }
+
+
+            function completeTrans()
+            {
+                $(".overlay").show();
+                $(".modal").show();
+                var client_username = $("#client_username_hidden").text();
+                var driver_username = $("#username_hidden").text();
+                // alert(client_username);
+                // alert(driver_username);
+                var xmlhttp2 = new XMLHttpRequest();
+                xmlhttp2.onreadystatechange = function() {
+                    if (xmlhttp2.readyState == 4 && xmlhttp2.status == 200) {
+                        $cost = xmlhttp2.responseText;
+                        alert("Your recent trip cost " + $cost);
+                        $(".overlay").hide();
+                        $(".modal").hide();
+                        $("#btn_complete").hide();
+                        $("#btn_request").show();
+                        
+                    }
+                };
+                 
+                xmlhttp2.open("GET", "completeTrans.php?driver=" + driver_username + "&client=" + client_username + "&status=COMPT", true);
+                xmlhttp2.send();
+            }
             function initMap() {
                 var directionsService = new google.maps.DirectionsService;
                 var directionsDisplay = new google.maps.DirectionsRenderer;
