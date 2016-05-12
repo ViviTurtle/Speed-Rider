@@ -2,7 +2,8 @@
 require("../includes/common.php");
 include("../includes/headerL.php");
 
-$db = new mysqli($host,$username,$password,$dbname);
+
+$db = new mysqli($host, $username, $password, $dbname);
 
 /* check connection */
 if (mysqli_connect_errno()) {
@@ -10,7 +11,7 @@ if (mysqli_connect_errno()) {
     exit();
 }
 
-$query="CALL SP_GET_DRIV_LFJOB;";
+$query = "CALL SP_GET_DRIV_LFJOB;";
 
 $driverL = $db->query($query);
 
@@ -43,225 +44,37 @@ while ($row = mysqli_fetch_object($driverL)) {
     <meta http-equiv="pragma" content="no-cache">
 </head>
 <header id="top" class="header1">
-<style>
-.vcenter {
-    position: relative; 
-    top: 5%;
-    text-align: center;
-}
-</style>
 
-<script>
-
-     /**THIS IS WHERE HOW TO CONVERT FROM PHP TO JSON ARRAY**/
-     var driverLat = <?php echo json_encode($Lat) ?>;
-     var driverLong = <?php echo json_encode($Long) ?>;
-
-     console.log(driverLat);
-     console.log(driverLong);
-
-     function getLocationP() {
-           if (navigator.geolocation) {
-               navigator.geolocation.getCurrentPosition(showPositionP);
-           }
-       }
-
-      function showPositionP(position) {
-
-       var lat = position.coords.latitude;
-       var lon = position.coords.longitude;
-       window.location.href = "/php/GetDriver.php?lat=" + lat + "&lon=" + lon;
-        }
-        /**
-         * Initialization of Grabbing Geolocation
-         */
-        function initCoords() {
-            var bayarea = new google.maps.LatLng(37.547841, -122.003326);
-            var browserSupportFlag = Boolean();
-            /*
-             Check if geolocation is allowed.
-             */
-            if (navigator.geolocation) {
-                browserSupportFlag = true;
-                navigator.geolocation.getCurrentPosition(initMap, function () {
-                    noGeolocation(browserSupportFlag);
-                });
-            } else {
-                browserSupportFlag = false;
-                noGeolocation(browserSupportFlag);
-            }
-            function noGeolocation(errorFlag) {
-                if (errorFlag == true) {
-                    alert("Geolocation service failed.");
-                    initMap(bayarea);
-                } else {
-                    alert("Your browser doesn't support geolocation. We've placed you in Siberia.");
-                    initMap(bayarea);
-                }
-            }
-        }
-        function initMap(position) {
-            // This Variable is to convert position into a LatLng object if it isn't already.
-            var convert;
-            var driverList[];
-            /*var driverList = [
-             {lat: 37.20422, lng: -121.84769},
-             {lat: 37.36742, lng: -121.98267},
-             {lat: 37.33413, lng: -121.88052},
-             ];*/
-
-            for (var i = 0; i < driverLat; i++) {
-                driverList.push({lat: driverLat[i], lng: driverLong[i]});
-            }
-
-            console.log(driverList[0]);
-        }
-
-     /**     * Noticed that the geolocation callback function returns an object of position where
-             * there is this position.location.latitude and position.location.longitude. This type of
-             * object seems to not always work and gives me errors. Changed all variables instead to
-             * google.maps.LatLng() to keep consistent.
-             * */
-            if (position instanceof google.maps.LatLng) {
-                var map = new google.maps.Map(document.getElementById('map'), {
-                    center: {lat: position.lat(), lng: position.lng()},
-                    zoom: 10
-                });
-                convert = position;
-            } else {
-                var map = new google.maps.Map(document.getElementById('map'), {
-                    center: {lat: position.coords.latitude, lng: position.coords.longitude},
-                    zoom: 10
-                });
-                convert = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-            }
-            // Add layer of Traffic
-            var traffic = new google.maps.TrafficLayer();
-            traffic.setMap(map);
-            var input = /** @type {!HTMLInputElement} */(
-                document.getElementById('pac-input'));
-            var types = document.getElementById('type-selector');
-            map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-            map.controls[google.maps.ControlPosition.TOP_LEFT].push(types);
-            var autocomplete = new google.maps.places.Autocomplete(input);
-            autocomplete.bindTo('bounds', map);
-            var infowindow = new google.maps.InfoWindow();
-            // User Marker
-            var marker = new google.maps.Marker({
-                position: {lat: convert.lat(), lng: convert.lng()},
-                map: map,
-                anchorPoint: new google.maps.Point(0, -29),
-                draggable: false
-            });
-            marker.setIcon(({
-                url: '/img/PassM.png',
-                size: new google.maps.Size(75, 75),
-                origin: new google.maps.Point(0, 0),
-                anchor: new google.maps.Point(0, 32)
-            }));
-            // Driver Markers
-            for (var i = 0; i < driverList.length; i++){
-                var driverMarker = new google.maps.Marker({
-                    position: driverList[i],
-                    map: map,
-                    draggable: false
-                });
-                driverMarker.setIcon(({
-                    url: '/img/VanSpriteSmall.png',
-                    size: new google.maps.Size(75, 75),
-                    origin: new google.maps.Point(0, 0),
-                    anchor: new google.maps.Point(0, 32)
-                }));
-                driverMarker.setVisible(true);
-            }
-            autocomplete.addListener('place_changed', function () {
-                infowindow.close();
-                marker.setVisible(false);
-                var place = autocomplete.getPlace();
-                if (!place.geometry) {
-                    window.alert("Autocomplete's returned place contains no geometry");
-                    return;
-                }
-                // If the place has a geometry, then present it on a map.
-                if (place.geometry.viewport) {
-                    map.fitBounds(place.geometry.viewport);
-                } else {
-                    map.setCenter(place.geometry.location);
-                    map.setZoom(17);  // Why 17? Because it looks good.
-                }
-                marker.setPosition(place.geometry.location);
-                marker.setVisible(true);
-                var address = '';
-                if (place.address_components) {
-                    address = [
-                        (place.address_components[0] && place.address_components[0].short_name || ''),
-                        (place.address_components[1] && place.address_components[1].short_name || ''),
-                        (place.address_components[2] && place.address_components[2].short_name || '')
-                    ].join(' ');
-                }
-                infowindow.setContent('<div><strong>' + place.name + '</strong><br>' + address);
-                infowindow.open(map, marker);
-            });
-            // Sets a listener on a radio button to change the filter type on Places
-            // Auto-complete
-            function setupClickListener(id, types) {
-                var radioButton = document.getElementById(id);
-                radioButton.addEventListener('click', function () {
-                    autocomplete.setTypes(types);
-                });
-            }
+    <script>
 
 
-
-            setupClickListener('changetype-all', []);
-            setupClickListener('changetype-address', ['address']);
-            setupClickListener('changetype-establishment', ['establishment']);
-            setupClickListener('changetype-geocode', ['geocode']);
-        }
-</script>
+    </script>
 
 </header>
 
 
-
-<!-- About -->
 <section id="about" class="about">
 
-    <input id="pac-input" class="controls" type="text"
-           placeholder="Enter a location">
-    <div id="type-selector" class="controls">
-        <input type="radio" name="type" id="changetype-all" checked="checked">
-        <label for="changetype-all">All</label>
 
-        <input type="radio" name="type" id="changetype-establishment">
-        <label for="changetype-establishment">Establishments</label>
 
-        <input type="radio" name="type" id="changetype-address">
-        <label for="changetype-address">Addresses</label>
-
-        <input type="radio" name="type" id="changetype-geocode">
-        <label for="changetype-geocode">Geocodes</label>
+    <div id="map">
     </div>
-    <br/>
-    <br/>
 
+    <div class="vcenter col-md-10 col-md-offset-1 ">
 
-    <div id="map" class="col-md-8 col-md-offset-2" style="height: 75%;">
+        <p class="vcenter"><h2>Enter Destination:</h2></p>
+
+        <input id="destination-input" class="controls" type="text" placeholder="Enter a destination location">
+
+        <form>
+            <input type="button" value="Request a Driver" onclick="getLocationP()" class="btn-teal"
+                   style="height: 100px; width: 300px; font-size: 30px;"/>
+        </form>
+
         
     </div>
 
-    <div class="vcenter col-md-10 col-md-offset-1 "> 
-    <form action="/php/calcCompTime.php">
-        <input type="button" value="Request a Driver" onclick="getLocationP()" class="btn-teal" style="height: 100px; width: 300px; font-size: 30px;" />
-    </form>
-    </div>
-
-   
-
-
 </section>
-
-
 
 
 <!-- Footer -->
@@ -275,7 +88,8 @@ while ($row = mysqli_fetch_object($driverL)) {
                     <p>1 Washington Square<br>San Jose, CA 95192</p>
                     <ul class="list-unstyled">
                         <li><i class="fa fa-phone fa-fw"></i> (123) 456-7890</li>
-                        <li><i class="fa fa-envelope-o fa-fw"></i>  <a href="mailto:name@example.com">students@sjsu.edu</a>
+                        <li><i class="fa fa-envelope-o fa-fw"></i> <a
+                                href="mailto:name@example.com">students@sjsu.edu</a>
                         </li>
                     </ul>
                     <br>
@@ -297,8 +111,227 @@ while ($row = mysqli_fetch_object($driverL)) {
 
 
 <!-- Maps -->
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCBJjObeyq52A4L2wUzNdUDLS6ohWWtI2c&libraries=places&callback=initCoords"
-        async defer></script>
+
+<script>
+    var driverLat = <?php echo json_encode($Lat) ?>;
+    var driverLong = <?php echo json_encode($Long) ?>;
+    var fare = 0;
+
+
+
+    function calcFare(distance, time) {
+        var costPerMeter = .0005;
+        var costPerSec = .005;
+        var fare = distance * costPerMeter + time * costPerSec;
+        return fare;
+    }
+
+    function initMap() {
+
+        driverList = [];
+        if (driverLat.length === null) {
+            driverList = [
+                {lat: 373351420, lng: -121.8811}
+            ]
+        } else {
+            for (i = 0; i < driverLat.length; i++) {
+                driverList[i] = {lat: Number(driverLat[i]), lng: Number(driverLong[i])};
+            }
+        }
+
+
+        var destination_place_id = null;
+
+        var map = new google.maps.Map(document.getElementById('map'), {
+            mapTypeControl: false,
+            center: {lat: 37.3351420, lng: -121.8811},
+            zoom: 13,
+            scrollwheel: false
+
+        });
+        var directionsService = new google.maps.DirectionsService;
+        var directionsDisplay = new google.maps.DirectionsRenderer;
+        var directionDistance = new google.maps.DistanceMatrixService();
+
+        directionsDisplay.setMap(map);
+
+
+        // get current location
+        var infoWindow = new google.maps.InfoWindow({map: map});
+        var pos;
+        // Try HTML5 geolocation.
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                pos = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+
+                GLOBAL_POS = {lat: pos.lat, lng: pos.lng};
+
+                infoWindow.setPosition(pos);
+                infoWindow.setContent('YOU ARE HERE');
+                map.setCenter(pos);
+                map.setZoom(15);
+
+            }, function () {
+                handleLocationError(true, infoWindow, map.getCenter());
+            });
+        } else {
+            // Browser doesn't support Geolocation
+            handleLocationError(false, infoWindow, map.getCenter());
+        }
+        // Driver Markers
+        for (var i = 0; i < driverList.length; i++) {
+            var driverMarker = new google.maps.Marker({
+                position: driverList[i],
+                map: map,
+                draggable: false
+            });
+            driverMarker.setIcon(({
+                url: '/img/VanSpriteSmall.png',
+                size: new google.maps.Size(75, 75),
+                origin: new google.maps.Point(0, 0),
+                anchor: new google.maps.Point(0, 32)
+            }));
+            driverMarker.setVisible(true);
+        }
+
+        // getting the destination. To get lat and long, use document.getElementById('destination-input'). value
+        var destination_input = document.getElementById('destination-input');
+
+
+        //      map.controls[google.maps.ControlPosition.TOP_LEFT].push(pos);
+        //      map.controls[google.maps.ControlPosition.TOP_LEFT].push(destination_input);
+
+
+        var destination_autocomplete =
+            new google.maps.places.Autocomplete(destination_input);
+        destination_autocomplete.bindTo('bounds', map);
+
+        // Sets a listener on a radio button to change the filter type on Places
+
+        function expandViewportToFitPlace(map, place) {
+            if (place.geometry.viewport) {
+                map.fitBounds(place.geometry.viewport);
+            } else {
+                map.setCenter(place.geometry.location);
+                map.setZoom(17);
+            }
+        }
+
+
+        destination_autocomplete.addListener('place_changed', function () {
+            var place = destination_autocomplete.getPlace();
+            if (!place.geometry) {
+                window.alert("Autocomplete's returned place contains no geometry");
+                return;
+            }
+            expandViewportToFitPlace(map, place);
+
+            // If the place has a geometry, store its place ID and route if we have
+            // the other place ID
+            destination_place_id = place.place_id;
+
+            //Variable For Latitude/Longitude
+            var destination_place_location = place.geometry.location;
+
+            calcDist(pos, destination_place_location, directionDistance);
+
+            route(pos, destination_place_id,
+                directionsService, directionsDisplay);
+
+        });
+
+
+        var trafficLayer = new google.maps.TrafficLayer();
+        trafficLayer.setMap(map);
+        function route(pos, destination_place_id,
+                       directionsService, directionsDisplay) {
+            directionsService.route({
+                origin: pos,
+                destination: {'placeId': destination_place_id},
+                travelMode: google.maps.TravelMode.DRIVING
+            }, function (response, status) {
+                if (status === google.maps.DirectionsStatus.OK) {
+                    directionsDisplay.setDirections(response);
+                } else {
+                    window.alert('Directions request failed due to ' + status);
+                }
+            });
+        }
+
+        function calcDist(pos, destination_place_location,
+                          directionDistance) {
+            directionDistance.getDistanceMatrix({
+                origins: [pos],
+                destinations: [destination_place_location],
+                travelMode: google.maps.TravelMode.DRIVING,
+                unitSystem: google.maps.UnitSystem.IMPERIAL,
+                drivingOptions: {
+                    departureTime: new Date(Date.now() + 300000)
+                }
+            }, callback);
+        }
+
+        function callback(response, status) {
+            var time = "";
+            var miles = "";
+            if (status == google.maps.DistanceMatrixStatus.OK) {
+                var origins = response.originAddresses;
+                var destinations = response.destinationAddresses;
+
+                for (var i = 0; i < origins.length; i++) {
+                    var results = response.rows[i].elements;
+                    for (var j = 0; j < results.length; j++) {
+                        var element = results[j];
+                        var distance = element.distance.value;
+                        miles = element.distance.text;
+                        console.log(distance);
+
+
+                        var duration = element.duration.value;
+                        time = element.duration.text;
+                        console.log(duration);
+
+                        fare = calcFare(distance, duration);
+                        var from = origins[i];
+                        var to = destinations[j];
+                    }
+                }
+            }
+            window.alert("Your destination is " + miles + " away and will take " + time + ".\n"
+                + "The estimated fare for this trip is: $" + parseFloat(Math.round(fare * 100) / 100).toFixed(2)
+                + "\nRequest a driver if this is okay!");
+        }
+
+
+
+
+
+    }
+
+    console.log(fare);
+
+    function getLocationP() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPositionP);
+        }
+    }
+
+
+    function showPositionP(position) {
+
+        var lat = position.coords.latitude;
+        var lon = position.coords.longitude;
+        window.location.href = "/php/GetDriver.php?lat=" + lat + "&lon=" + lon + "&fare=" + parseFloat(Math.round(fare * 100) / 100).toFixed(2);
+    }
+
+
+</script>
+<script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAAo_ycMAjDvH5v14Z595CyEIr5zbHEnFQ&libraries=places&callback=initMap"
+    async defer></script>
 
 
 <!-- jQuery -->
@@ -310,33 +343,18 @@ while ($row = mysqli_fetch_object($driverL)) {
 <!-- Custom Theme JavaScript -->
 <script>
     // Closes the sidebar menu
-    $("#menu-close").click(function(e) {
+    $("#menu-close").click(function (e) {
         e.preventDefault();
         $("#sidebar-wrapper").toggleClass("active");
     });
 
     // Opens the sidebar menu
-    $("#menu-toggle").click(function(e) {
+    $("#menu-toggle").click(function (e) {
         e.preventDefault();
         $("#sidebar-wrapper").toggleClass("active");
     });
 
-    // Scrolls to the selected menu item on the page
-    $(function() {
-        $('a[href*=#]:not([href=#])').click(function() {
-            if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') || location.hostname == this.hostname) {
 
-                var target = $(this.hash);
-                target = target.length ? target : $('[name=' + this.hash.slice(1) + ']');
-                if (target.length) {
-                    $('html,body').animate({
-                        scrollTop: target.offset().top
-                    }, 1000);
-                    return false;
-                }
-            }
-        });
-    });
 </script>
 
 

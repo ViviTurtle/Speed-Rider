@@ -25,6 +25,7 @@ $driverL = $db->query($query);
     $ClName = $UserInf->USERNAME;
     $lat = $_GET["lat"];
     $long =  $_GET["lon"];
+    $fare = $_GET["fare"];
 
 
 /**
@@ -61,7 +62,7 @@ usort($clTimes, function($a, $b) {
 // echo '<br><br>Sorted Array<br>';
 // print_r($clTimes);
 
-// echo '<br><br>'.$Driv[0].' is paired with '.$ClName.'<br>';
+//echo '<br><br>'.$Driv[0].' is paired with '.$ClName.'<br>';
 
 
 
@@ -84,7 +85,7 @@ $db->close();
 $db = new mysqli($host,$username,$password,$dbname);
 $query="CALL SP_LINK_USER('$Driv[0]','$ClName', $lat, $long, $driverLat , $driverLong)";
 $db->query($query);
-echo $query;
+//echo $query;
 
 unset($clTimes);
 
@@ -148,8 +149,10 @@ $db->close();
     </div>
 
     <script>
+        var driverLat = <?php echo json_encode($driverLat) ?>;
+        var driverLong = <?php echo json_encode($driverLong) ?>;
 
-
+        console.log(driverLat);
         /**
          * Initialization of Grabbing Geolocation
          */

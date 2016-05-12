@@ -18,4 +18,3 @@ if (mysqli_connect_errno()) {
 }
 
 ?>
-

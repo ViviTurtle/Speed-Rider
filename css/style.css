@@ -44,6 +44,24 @@ body {
     background-color: rgba(0, 0, 0, 0.7);
 }
 
+
+.btn-tealMaps {
+    border-radius: 0;
+    color: #fff;
+    background-color: #1e1e35;
+    height: 25px;
+    width: 75px;
+    font-size: 15px;
+}
+
+.btn-tealMaps:hover,
+.btn-tealMaps:focus,
+.btn-tealMaps:active {
+    color: #fff;
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+
 .btn-dark {
     border-radius: 0;
     color: #fff;
@@ -144,14 +162,7 @@ body {
     font-size: 2em;
     color: #ffffff;
     text-decoration: inherit;
-    text-shadow: 0 0 20px rgb(254, 252, 201),
-    10px -10px 30px rgb(254, 236, 133),
-    -20px -20px 40px rgb(255, 174, 52),
-    20px -40px 50px rgb(236, 118, 12),
-    -20px -60px 60px rgb(205, 70, 6),
-    0 -80px 70px rgb(151, 55, 22),
-    10px -90px 80px rgb(69, 27, 14),
-    2px 2px 3px #000;
+
 
 }
 
@@ -445,8 +456,9 @@ footer {
 /* remove codrops styles and reset the whole thing */
 #containerLogin {
     text-align: left;
-    min-height: calc(690px * (90 / 150));
-    height: 90vh;
+    /*min-height: calc(690px * (90 / 150));*/
+    height: 1000px;
+    min-height: 800px;
     font-family: "Trebuchet MS", "Myriad Pro", Arial, sans-serif;
 
 }
@@ -507,12 +519,6 @@ a.hiddenanchor {
     padding-bottom: 40px;
 }
 
-/** For the moment only webkit supports the background-clip:text; */
-#wrapper h1 {
-    background: #ffa500;
-    -webkit-text-fill-color: transparent;
-    -webkit-background-clip: text;
-}
 
 #wrapper h1:after {
     content: ' ';
@@ -539,12 +545,6 @@ a.hiddenanchor {
     padding-bottom: 0;
 }
 
-/** For the moment only webkit supports the background-clip:text; */
-#wrapper h2 {
-    background: #ffa500;
-    -webkit-text-fill-color: transparent;
-    -webkit-background-clip: text;
-}
 
 #wrapper h2:after {
     content: ' ';
@@ -872,8 +872,26 @@ p.change_link {
 
 /** Google MAPS */
 
-#map {
-    height: 100%;
+
+.vcenter {
+    position: relative;
+    top: 5%;
+    text-align: center;
+}
+
+#destination-input:focus {
+    border-color: #4d90fe;
+}
+
+#destination-input {
+    background-color: #fff;
+    font-family: Roboto;
+    font-size: 15px;
+    font-weight: 300;
+    margin: 12px;
+    padding: 0 11px 0 13px;
+    text-overflow: ellipsis;
+    width: 200px;
 }
 
 .controls {
@@ -887,34 +905,26 @@ p.change_link {
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
-#pac-input {
-    background-color: #fff;
-    font-family: Roboto;
-    font-size: 15px;
-    font-weight: 300;
-    margin-left: 12px;
-    padding: 0 11px 0 13px;
-    text-overflow: ellipsis;
-    width: 300px;
+
+
+
+#map {
+    height:75%;
+    width:100%;
 }
 
-#pac-input:focus {
-    border-color: #4d90fe;
+
+
+.controls {
+    margin-top: 10px;
+    border: 1px solid transparent;
+    border-radius: 2px 0 0 2px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    height: 32px;
+    outline: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
-.pac-container {
-    font-family: Roboto;
-}
 
-#type-selector {
-    color: #fff;
-    background-color: #4d90fe;
-    padding: 5px 11px 0px 11px;
-}
-
-#type-selector label {
-    font-family: Roboto;
-    font-size: 13px;
-    font-weight: 300;
-}
 

@@ -303,8 +303,8 @@ Horizontal Navigation Bar
 
 .navbartop {
   z-index: 666;
-  background: transparent;
-  position: absolute;
+  background:transparent;
+  position: fixed;
   width: 100%;
   transition: all 300ms
 }
@@ -339,7 +339,12 @@ Horizontal Navigation Bar
 
 
 
+#login-content {
+  width: 100px;
+  length: 400px;
+  background-color: black;
 
+}
 
 
 

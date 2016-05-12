@@ -2,7 +2,7 @@
 require("../includes/common.php");
 include("../includes/headerL.php");
 
-$db = new mysqli($host,$username,$password,$dbname);
+$db = new mysqli($host, $username, $password, $dbname);
 
 /* check connection */
 if (mysqli_connect_errno()) {
@@ -10,7 +10,7 @@ if (mysqli_connect_errno()) {
     exit();
 }
 
-$query="CALL SP_GET_DRIV_LFJOB;";
+$query = "CALL SP_GET_DRIV_LFJOB;";
 
 $driverL = $db->query($query);
 
@@ -49,9 +49,11 @@ while ($row = mysqli_fetch_object($driverL)) {
             top: 5%;
             text-align: center;
         }
+
         #destination-input:focus {
             border-color: #4d90fe;
         }
+
         #destination-input {
             background-color: #fff;
             font-family: Roboto;
@@ -83,25 +85,23 @@ while ($row = mysqli_fetch_object($driverL)) {
 </header>
 
 
-
 <!-- About -->
 <section id="about" class="about">
 
     <div id="map" class="col-md-8 col-md-offset-2" style="height: 75%;">
     </div>
-    <div class="col-md-8 col-md-offset-3" >
+    <div class="col-md-8 col-md-offset-3">
         <input id="destination-input" class="controls" type="text"
                placeholder="Enter a destination location">
     </div>
     <div class="vcenter col-md-10 col-md-offset-1 ">
         <form action="/php/calcCompTime.php">
-            <input type="button" value="Request a Driver" onclick="getLocationP()" class="btn-teal" style="height: 100px; width: 300px; font-size: 30px;" />
+            <input type="button" value="Request a Driver" onclick="getLocationP()" class="btn-teal"
+                   style="height: 100px; width: 300px; font-size: 30px;"/>
         </form>
     </div>
 
 </section>
-
-
 
 
 <!-- Footer -->
@@ -115,7 +115,8 @@ while ($row = mysqli_fetch_object($driverL)) {
                     <p>1 Washington Square<br>San Jose, CA 95192</p>
                     <ul class="list-unstyled">
                         <li><i class="fa fa-phone fa-fw"></i> (123) 456-7890</li>
-                        <li><i class="fa fa-envelope-o fa-fw"></i>  <a href="mailto:name@example.com">students@sjsu.edu</a>
+                        <li><i class="fa fa-envelope-o fa-fw"></i> <a
+                                href="mailto:name@example.com">students@sjsu.edu</a>
                         </li>
                     </ul>
                     <br>
@@ -142,14 +143,37 @@ while ($row = mysqli_fetch_object($driverL)) {
     var driverLat = <?php echo json_encode($Lat) ?>;
     var driverLong = <?php echo json_encode($Long) ?>;
 
-    console.log(driverLat);
-    console.log(driverLong);
+    function getLocationP() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPositionP);
+        }
+    }
+
+    function showPositionP(position) {
+
+        var lat = position.coords.latitude;
+        var lon = position.coords.longitude;
+        window.location.href = "/php/GetDriver.php?lat=" + lat + "&lon=" + lon;
+    }
+
+    function calcFare(distance, time) {
+        var costPerMeter = .0005;
+        var costPerSec = .005;
+        var fare = distance * costPerMeter + time * costPerSec;
+        return fare;
+    }
 
     function initMap() {
 
         driverList = [];
-        for (i = 0; i < driverLat.length; i++){
-            driverList[i] = {lat: Number(driverLat[i]), lng: Number(driverLong[i])};
+        if (driverLat.length === null) {
+            driverList = [
+                {lat: 373351420, lng: -121.8811}
+            ]
+        } else {
+            for (i = 0; i < driverLat.length; i++) {
+                driverList[i] = {lat: Number(driverLat[i]), lng: Number(driverLong[i])};
+            }
         }
 
 
@@ -169,24 +193,25 @@ while ($row = mysqli_fetch_object($driverL)) {
         directionsDisplay.setMap(map);
 
 
-
         // get current location
         var infoWindow = new google.maps.InfoWindow({map: map});
         var pos;
         // Try HTML5 geolocation.
         if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function(position) {
+            navigator.geolocation.getCurrentPosition(function (position) {
                 pos = {
                     lat: position.coords.latitude,
                     lng: position.coords.longitude
                 };
 
+                GLOBAL_POS = {lat: pos.lat, lng: pos.lng};
+
                 infoWindow.setPosition(pos);
-                infoWindow.setContent('You are here.');
+                infoWindow.setContent('YOU ARE HERE');
                 map.setCenter(pos);
                 map.setZoom(15);
 
-            }, function() {
+            }, function () {
                 handleLocationError(true, infoWindow, map.getCenter());
             });
         } else {
@@ -194,7 +219,7 @@ while ($row = mysqli_fetch_object($driverL)) {
             handleLocationError(false, infoWindow, map.getCenter());
         }
         // Driver Markers
-        for (var i = 0; i < driverList.length; i++){
+        for (var i = 0; i < driverList.length; i++) {
             var driverMarker = new google.maps.Marker({
                 position: driverList[i],
                 map: map,
@@ -233,7 +258,7 @@ while ($row = mysqli_fetch_object($driverL)) {
         }
 
 
-        destination_autocomplete.addListener('place_changed', function() {
+        destination_autocomplete.addListener('place_changed', function () {
             var place = destination_autocomplete.getPlace();
             if (!place.geometry) {
                 window.alert("Autocomplete's returned place contains no geometry");
@@ -244,16 +269,18 @@ while ($row = mysqli_fetch_object($driverL)) {
             // If the place has a geometry, store its place ID and route if we have
             // the other place ID
             destination_place_id = place.place_id;
+
+            //Variable For Latitude/Longitude
             var destination_place_location = place.geometry.location;
 
-
             calcDist(pos, destination_place_location, directionDistance);
-            console.log("destination:" + destination_place_location);
 
             route(pos, destination_place_id,
                 directionsService, directionsDisplay);
-            //calcDist(pos, destination_place_id, directionDistance);
+
         });
+
+
         var trafficLayer = new google.maps.TrafficLayer();
         trafficLayer.setMap(map);
         function route(pos, destination_place_id,
@@ -262,7 +289,7 @@ while ($row = mysqli_fetch_object($driverL)) {
                 origin: pos,
                 destination: {'placeId': destination_place_id},
                 travelMode: google.maps.TravelMode.DRIVING
-            }, function(response, status) {
+            }, function (response, status) {
                 if (status === google.maps.DirectionsStatus.OK) {
                     directionsDisplay.setDirections(response);
                 } else {
@@ -271,43 +298,23 @@ while ($row = mysqli_fetch_object($driverL)) {
             });
         }
 
-        // function to calculate distance
-
-        /*function calculateDistance(location1, location2) {
-
-            var glatlng1 = new google.maps.LatLng(location1.lat, location1.lng);
-            var glatlng2 = location2;
-            var miledistance = (google.maps.geometry.spherical.computeDistanceBetween(glatlng1, glatlng2) / 1000) - 5.12;
-            //var miledistance = glatlng1.distanceFrom(glatlng2, 3959).toFixed(1);
-
-            // /var kmdistance = (miledistance * 1.609344).toFixed(1);
-            //document.getElementById('results').innerHTML = 'Address 1: ' + location1.address + ' (' + location1.lat + ':' + location1.lon + ')<br />Address 2: ' + location2.address + ' (' + location2.lat + ':' + location2.lon + ')<br />Distance: ' + miledistance + ' miles<br/>';
-            console.log("Distance is" + miledistance);
-
-        }*/
-
-
-
-
-
         function calcDist(pos, destination_place_location,
-                                  directionDistance) {
-            directionDistance.getDistanceMatrix ({
-                        origins: [pos],
-                        destinations: [destination_place_location],
-                        travelMode: google.maps.TravelMode.DRIVING,
-                        unitSystem: google.maps.UnitSystem.IMPERIAL,
-                        drivingOptions: {
-                            departureTime: new Date(Date.now() + 300000),
-                        }
-
-
+                          directionDistance) {
+            directionDistance.getDistanceMatrix({
+                origins: [pos],
+                destinations: [destination_place_location],
+                travelMode: google.maps.TravelMode.DRIVING,
+                unitSystem: google.maps.UnitSystem.IMPERIAL,
+                drivingOptions: {
+                    departureTime: new Date(Date.now() + 300000)
+                }
             }, callback);
-
-
         }
 
         function callback(response, status) {
+            var fare = 0;
+            var time = "";
+            var miles = "";
             if (status == google.maps.DistanceMatrixStatus.OK) {
                 var origins = response.originAddresses;
                 var destinations = response.destinationAddresses;
@@ -316,25 +323,32 @@ while ($row = mysqli_fetch_object($driverL)) {
                     var results = response.rows[i].elements;
                     for (var j = 0; j < results.length; j++) {
                         var element = results[j];
-                        var distance = element.distance.text;
+                        var distance = element.distance.value;
+                        miles = element.distance.text;
                         console.log(distance);
 
-                        var duration = element.duration.text;
+
+                        var duration = element.duration.value;
+                        time = element.duration.text;
                         console.log(duration);
 
+                        fare = calcFare(distance, duration);
                         var from = origins[i];
                         var to = destinations[j];
                     }
                 }
             }
+            window.alert("Your destination is " + miles + " away and will take " + time + ".\n"
+                + "The estimated fare for this trip is: $" + parseFloat(Math.round(fare * 100) / 100).toFixed(2)
+                + "\nRequest a driver if this is okay!");
         }
-
 
 
     }
 </script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAAo_ycMAjDvH5v14Z595CyEIr5zbHEnFQ&libraries=places&callback=initMap"
-        async defer></script>
+<script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAAo_ycMAjDvH5v14Z595CyEIr5zbHEnFQ&libraries=places&callback=initMap"
+    async defer></script>
 
 
 <!-- jQuery -->
@@ -346,20 +360,20 @@ while ($row = mysqli_fetch_object($driverL)) {
 <!-- Custom Theme JavaScript -->
 <script>
     // Closes the sidebar menu
-    $("#menu-close").click(function(e) {
+    $("#menu-close").click(function (e) {
         e.preventDefault();
         $("#sidebar-wrapper").toggleClass("active");
     });
 
     // Opens the sidebar menu
-    $("#menu-toggle").click(function(e) {
+    $("#menu-toggle").click(function (e) {
         e.preventDefault();
         $("#sidebar-wrapper").toggleClass("active");
     });
 
     // Scrolls to the selected menu item on the page
-    $(function() {
-        $('a[href*=#]:not([href=#])').click(function() {
+    $(function () {
+        $('a[href*=#]:not([href=#])').click(function () {
             if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') || location.hostname == this.hostname) {
 
                 var target = $(this.hash);

@@ -16,6 +16,8 @@ include("../includes/headerL.php");
     #map {
         height: 100%;
     }
+
+     
     #floating-panel {
         position: absolute;
         top: 10px;
@@ -131,6 +133,7 @@ include("../includes/headerL.php");
                     // Browser doesn't support Geolocation
                     handleLocationError(false, infoWindow, map.getCenter());
                 }
+                // var customerPosition = 
                 var onChangeHandler = function() {
                     calculateAndDisplayRoute(directionsService, directionsDisplay, pos);
                 };

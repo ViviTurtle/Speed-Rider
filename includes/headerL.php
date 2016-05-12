@@ -3,17 +3,6 @@
 
 <head>
 
-<?php
-session_start();
-if(!isset($_SESSION['userLogged']) || empty($_SESSION['userLogged'])) {
-        header('Location:../php/login.php');
-        exit;
-} else {
-    $UserInf = $_SESSION['userLogged'];
-
-}
-
-?>
 
 
 
@@ -59,8 +48,17 @@ if(!isset($_SESSION['userLogged']) || empty($_SESSION['userLogged'])) {
     <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
     <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     
-      
+<?php
 
+    session_start();
+    if(!isset($_SESSION['userLogged']) || empty($_SESSION['userLogged'])) {
+        header('Location:../php/login.php#tologin');
+        exit;
+    } else {
+        session_start();
+        $UserInf = $_SESSION['userLogged'];
+    }
+?>
 </head>
 
 <body>
@@ -72,7 +70,7 @@ if(!isset($_SESSION['userLogged']) || empty($_SESSION['userLogged'])) {
     <ul class = "navattop">
         <li><?php echo '<a id = "login-trigger">Welcome <b>'.$UserInf->FNAME.'</b><span>▲</span>:</a>' ?>
             <div id="login-content">
-                <a href="../index.html">Logout</a>
+                <a href="./logout.php">Logout</a>
             </div>
             
         </li>
@@ -96,14 +94,9 @@ if(!isset($_SESSION['userLogged']) || empty($_SESSION['userLogged'])) {
                     <a href="./index.html"  onclick = $("#menu-close").click(); >Speed Rider</a>
                 </li>
                 <li>
-                    <a href="#about" onclick = $("#menu-close").click(); >About</a>
+                    <a href="../php/logout.php" onclick = $("#menu-close").click(); >Logout</a>
                 </li>
-                <li>
-                    <a href="#callout" onclick = $("#menu-close").click(); >Start Now</a>
-                </li>
-                <li>
-                    <a href="#contact" onclick = $("#menu-close").click(); >Contact</a>
-                </li>
+
             </ul>
         </nav>
     </div>
