@@ -3,7 +3,34 @@
 
 <head>
 
-
+<style>
+    html, body{
+      min-height: 100%;
+    }
+    body{
+      position: relative;
+    }
+    .overlay{
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+      background-color: rgba(0,0,0,0.5);
+      display: none;
+    }
+    .modal {
+     position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 11;
+      background-color: rgba(0,0,0,0.5);
+      display: none;
+}
+</style>
 
 
 
@@ -57,12 +84,16 @@
     } else {
         session_start();
         $UserInf = $_SESSION['userLogged'];
-    }
-?>
+    
+}?>
 </head>
 
 <body>
 
+<div class="overlay"></div>
+<div class="modal">
+    <img src="/img/loading.gif" alt="Loading" style="position: absolute; top: 50%; left: 45%; margin-left: -(128/2)px; margin-top: -(38/2)px";>
+</div>
 <!-- Navigation Bar -->
 <div class = "navbartop">
     

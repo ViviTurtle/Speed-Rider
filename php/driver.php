@@ -6,9 +6,11 @@ include("../includes/headerL.php");
 
 ?>
 
-
+ <div id="overlay">
+        <div id="loading-img"></div>
+</div>
 <style>
-    html, body {
+  /*  html, body {
         height: 100%;
         margin: 0;
         padding: 0;
@@ -75,7 +77,8 @@ include("../includes/headerL.php");
             float: none;
             width: auto;
         }
-    }
+    }*/
+
 
 </style>
 
@@ -84,18 +87,127 @@ include("../includes/headerL.php");
 </header>
 
 
-
 <!-- About -->
 <section id="about" class="about">
-
+   
     <div id="floating-panel">
         <button id ="click">Get me to my Client!</button>
     </div>
     <div id="right-panel"></div>
-
     <div id="map"></div>
 
+  <div class="vcenter col-md-10 col-md-offset-1 ">
+
+        <p class="vcenter"><h2>Location:</h2></p>
+       
+        <p name="Longitude_label" style="color: yellow; font-size: large;">Current Longitude:&nbsp;</p>   
+        <p name="Longitude" id="longitude" style="color: yellow; font-size: large;"> </p>
+
+        <p name="Longitude_label" style="color: yellow; font-size: large;">Current Latitude:&nbsp;</p> 
+        <p name="Latitude" id="latitude" style="color: yellow; font-size: large;"> </p>
+        <?php echo '<p id = "username_hidden" style="visibility: hidden;">'.$UserInf->USERNAME.'</p>'?>
+
+        <p name="Longitude" id="longitude" style="color: yellow; font-size: large;"> </p>
+        <p name="Longitude" id="longitude" style="color: yellow; font-size: large;"> </p>
+        <p name="Longitude" id="longitude" style="color: yellow; font-size: large;"> </p>
+        <p name="Longitude" id="longitude" style="color: yellow; font-size: large;"> </p>
+       
+       <!--  <input id="destination-input" class="controls" type="text" placeholder="Enter a destination location">
+ -->
+        <form>
+            <input type="button" value="Request a new Client" class="btn-teal" onclick="getClient()" 
+                   style="height: 100px; width: 300px; font-size: 30px;" id="btn_request"/>
+        </form>
+          <form>
+            <input type="button" value="Get Directions" class="btn-teal" 
+                   style="height: 100px; width: 300px; font-size: 30px;" id="btn_directions"/>
+        </form>
+
+        
+    </div>
+
     <script>
+            $( document ).ready(function() {
+            $("#btn_directions").hide();
+            getLocationD()
+            });
+
+             function getLocationD() {
+
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(showPositionD);
+                }
+            }
+
+            function showPositionD(position) {
+
+                var lat = position.coords.latitude;
+                var lon = position.coords.longitude;
+                $("#latitude").text(lat);
+                $("#longitude").text(lon);
+
+                // window.location.href = "/php/GetDriver.php?lat=" + lat + "&lon=" + lon + "&fare=" + parseFloat(Math.round(fare * 100) / 100).toFixed(2);
+            }
+
+            function getClient()
+            {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(getClientHelper);
+                }
+            }
+            function getClientHelper(position)
+            {
+               
+                $(".overlay").show();
+                $(".modal").show();
+           
+                var lat = position.coords.latitude;
+                var lon = position.coords.longitude;
+                var username = $("#username_hidden").text();
+                //test code
+                // alert("Latitude: "+ lat + " Latitude: "+ lon);
+                var xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function() {
+                    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) 
+                    {
+                    }
+                };
+                xmlhttp.open("GET", "getClient.php?lat=" + lat + "&lon=" + lon + "&username=" + username, true);
+                    xmlhttp.send();
+
+                 window.setTimeout(refresh4ClientHelper, 2000);
+            }
+            //Will automatically stop when a Client is assigned via passenger.php.
+            //TEST Code: UPDATE T_USER SET STATUS_TYPE = 'INROT' WHERE USERNAME = 'DRIVER1';
+            function refresh4ClientHelper()
+            {
+                var username = $("#username_hidden").text();
+                var xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function() {
+                    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                         $is_chosen = xmlhttp.responseText;
+                         // alert($is_chosen);
+                         if ($is_chosen != 0) 
+                         {
+                            alert("You have a new client!");
+                            $(".overlay").hide();
+                            $(".modal").hide();
+                            $("#btn_request").hide();
+                            $("#btn_directions").show();
+                         }
+                         else
+                         {
+                            //repeats every 2 seconds until they find a client
+                             window.setTimeout(refresh4ClientHelper, 2000);
+                         }
+                        // document.getElementById("latitude").innerHTML = xmlhttp.responseText;
+                        // document.getElementById("longitude").innerHTML = xmlhttp.responseText;
+                    }
+                };
+                xmlhttp.open("GET", "checkChosen.php?username=" + username, true);
+                xmlhttp.send();
+            }
+
             function initMap() {
                 var directionsService = new google.maps.DirectionsService;
                 var directionsDisplay = new google.maps.DirectionsRenderer;
@@ -254,3 +366,6 @@ include("../includes/headerL.php");
         });
     });
 </script>
+
+</body>
+</html>
