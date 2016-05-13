@@ -2,10 +2,10 @@
 
 require("../includes/common.php");
 
-$db = new mysqli($host,$username,$password,$dbname);
-
+$is_chosen = 0;
 $User = $_GET["username"]; 
 
+$db = new mysqli($host,$username,$password,$dbname);
 /* check connection */
 if (mysqli_connect_errno()) {
     printf("Connect failed: %s\n", mysqli_connect_error());
@@ -13,16 +13,13 @@ if (mysqli_connect_errno()) {
 }
 else
 {
-    $query = "CALL SP_GET_DROP_OFF_LOC('{$User}')";
+    $query = "CALL SP_CHECK_IF_CHOSEN('{$User}')";
     $result = $db->query($query);
     while ($row = $result->fetch_assoc()) {
-        $long = $row["DROP_OFF_LONGITUDE"];
-        $lat = $row["DROP_OFF_LATITUDE"];
-        $cost = $row["COST"];
+        $is_chosen = $row["IS_CHOSEN"];
     }
-    echo "{$long}|{$lat}|{$cost}";
+    echo $is_chosen;
 }
-
 $db->close();
 
 ?>

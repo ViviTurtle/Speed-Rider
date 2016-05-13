@@ -88,13 +88,13 @@ while ($row = mysqli_fetch_object($driverL)) {
 <!-- About -->
 <section id="about" class="about">
 
-    <div id="map" class="col-md-8 col-md-offset-2" style="height: 75%;">
+    <div id="map" class="col-md-8" style="height: 75%;">
     </div>
-    <div class="col-md-8 col-md-offset-3">
+    <div class="vcenter col-md-8 col-md-offset-2">
         <input id="destination-input" class="controls" type="text"
-               placeholder="Enter a destination location">
+               placeholder="Enter a destination location" style="width: 40%;">
     </div>
-    <div class="vcenter col-md-10 col-md-offset-1 ">
+    <div class="vcenter col-md-10 col-md-offset-1">
         <form action="/php/calcCompTime.php">
             <input type="button" value="Request a Driver" onclick="getLocationP()" class="btn-teal"
                    style="height: 100px; width: 300px; font-size: 30px;"/>
@@ -106,6 +106,9 @@ while ($row = mysqli_fetch_object($driverL)) {
 
 <!-- Footer -->
 <footer>
+     <p id = "drop_off_long" style="visibility: hidden;"> </p>
+     <p id = "drop_off_lat" style="visibility: hidden;"> </p>
+       <p id = "fare" style="visibility: hidden;"> </p>
     <section id="contact">
         <div class="container">
             <div class="row">
@@ -153,20 +156,24 @@ while ($row = mysqli_fetch_object($driverL)) {
 
         var lat = position.coords.latitude;
         var lon = position.coords.longitude;
-        window.location.href = "/php/GetDriver.php?lat=" + lat + "&lon=" + lon;
+        var drop_lat = $("#drop_off_long").text();
+        var drop_lon = $("#drop_off_long").text();
+        var fare = $("#fare").text();
+        window.location.href = "/php/GetDriver.php?lat=" + lat + "&lon=" + lon + "&lat2=" + drop_lat+ "&lon2=" + drop_lon + "&fare=" + fare;
     }
 
     function calcFare(distance, time) {
         var costPerMeter = .0005;
         var costPerSec = .005;
-        var fare = distance * costPerMeter + time * costPerSec;
+        var minimum = 5;
+        var fare = distance * costPerMeter + time * costPerSec + minimum;
         return fare;
     }
 
     function initMap() {
 
         driverList = [];
-        if (driverLat.length === null) {
+        if (driverLat.length === null || driverLat.length === 0) {
             driverList = [
                 {lat: 373351420, lng: -121.8811}
             ]
@@ -219,7 +226,7 @@ while ($row = mysqli_fetch_object($driverL)) {
             handleLocationError(false, infoWindow, map.getCenter());
         }
         // Driver Markers
-        for (var i = 0; i < driverList.length; i++) {
+        for (var i = 0; i <= driverList.length; i++) {
             var driverMarker = new google.maps.Marker({
                 position: driverList[i],
                 map: map,
@@ -257,7 +264,6 @@ while ($row = mysqli_fetch_object($driverL)) {
             }
         }
 
-
         destination_autocomplete.addListener('place_changed', function () {
             var place = destination_autocomplete.getPlace();
             if (!place.geometry) {
@@ -272,7 +278,11 @@ while ($row = mysqli_fetch_object($driverL)) {
 
             //Variable For Latitude/Longitude
             var destination_place_location = place.geometry.location;
-
+            // alert(destination_place_location.lat());
+            // alert(destination_place_location.lng());
+            // $("#drop_off_long").text($client_user);
+            $("#drop_off_long").text(destination_place_location.lng());
+            $("#drop_off_lat").text(destination_place_location.lat());
             calcDist(pos, destination_place_location, directionDistance);
 
             route(pos, destination_place_id,
@@ -333,6 +343,7 @@ while ($row = mysqli_fetch_object($driverL)) {
                         console.log(duration);
 
                         fare = calcFare(distance, duration);
+                         $("#fare").text(parseFloat(Math.round(fare * 100) / 100).toFixed(2));
                         var from = origins[i];
                         var to = destinations[j];
                     }
@@ -390,3 +401,5 @@ while ($row = mysqli_fetch_object($driverL)) {
 </script>
 
 
+</body>
+</html>

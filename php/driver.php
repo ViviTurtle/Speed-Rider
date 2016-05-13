@@ -10,75 +10,6 @@ include("../includes/headerL.php");
         <div id="loading-img"></div>
 </div>
 <style>
-  /*  html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-    }
-    #map {
-        height: 100%;
-    }
-
-     
-    #floating-panel {
-        position: absolute;
-        top: 10px;
-        left: 25%;
-        z-index: 5;
-        background-color: #fff;
-        padding: 5px;
-        border: 1px solid #999;
-        text-align: center;
-        font-family: 'Roboto','sans-serif';
-        line-height: 30px;
-        padding-left: 5px;
-    }
-    #right-panel {
-        font-family: 'Roboto','sans-serif';
-        line-height: 30px;
-        padding-left: 10px;
-    }
-
-    #right-panel select, #right-panel input {
-        font-size: 15px;
-    }
-
-    #right-panel select {
-        width: 100%;
-    }
-
-    #right-panel i {
-        font-size: 12px;
-    }
-    #right-panel {
-        height: 100%;
-        float: right;
-        width: 390px;
-        overflow: auto;
-    }
-    #map {
-        margin-right: 400px;
-    }
-    #floating-panel {
-        background: #fff;
-        padding: 1px;
-        font-size: 22px;
-        font-family: Arial;
-        border: 1px solid #ccc;
-        box-shadow: 0 2px 2px rgba(33, 33, 33, 0.4);
-        display: none;
-    }
-    @media print {
-        #map {
-            height: 500px;
-            margin: 0;
-        }
-        #right-panel {
-            float: none;
-            width: auto;
-        }
-    }*/
-
 
 </style>
 
@@ -105,33 +36,33 @@ include("../includes/headerL.php");
 
         <p name="Longitude_label" style="color: yellow; font-size: large;">Current Latitude:&nbsp;</p> 
         <p name="Latitude" id="latitude" style="color: yellow; font-size: large;"> </p>
-        <?php echo '<p id = "username_hidden" style="visibility: hidden;">'.$UserInf->USERNAME.'</p>'?>
-        <p id = "client_username_hidden" style="visibility: hidden;"> </p>
-         <p id = "client_long" style="visibility: hidden;"> </p>
-          <p id = "client_lat" style="visibility: hidden;"> </p>
-        <p name="Longitude" id="longitude" style="color: yellow; font-size: large;"> </p>
-        <p name="Longitude" id="longitude" style="color: yellow; font-size: large;"> </p>
-        <p name="Longitude" id="longitude" style="color: yellow; font-size: large;"> </p>
-        <p name="Longitude" id="longitude" style="color: yellow; font-size: large;"> </p>
-       
-       <!--  <input id="destination-input" class="controls" type="text" placeholder="Enter a destination location">
- -->
-        <form>
+<br/>
+            <form>
             <input type="button" value="Request a new Client" class="btn-teal" onclick="getClient()" 
                    style="height: 100px; width: 300px; font-size: 30px;" id="btn_request"/>
         </form>
           <form>
-            <input type="button" value="Get Directions To Client" class="btn-teal"
+            <input type="button" value="Get Directions To Client" class="btn-teal" onclick="setDropOffLoc()"
                    style="height: 100px; width: 300px; font-size: 30px;" id="btn_directions"/>
         </form>
         <form>
-            <input type="button" value="Get Drop-Off Location" class="btn-teal" onclick="getDropOff()"
+            <input type="button" value="Get Drop-Off Location" class="btn-teal" onclick="hideDropShowComp()"
                    style="height: 100px; width: 300px; font-size: 30px;" id="btn_dropoff"/>
         </form>
              <form>
             <input type="button" value="Complete Transanction" class="btn-teal" onclick="completeTrans()"
                    style="height: 100px; width: 300px; font-size: 30px;" id="btn_complete"/>
         </form>
+        <?php echo '<p id = "username_hidden" style="visibility: hidden;">'.$UserInf->USERNAME.'</p>'?>
+        <p id = "client_username_hidden" style="visibility: hidden;"> </p>
+         <p id = "client_long" style="visibility: hidden;"> </p>
+          <p id = "client_lat" style="visibility: hidden;"> </p>       
+           <p id = "drop_long" style="visibility: hidden;"> </p>
+          <p id = "drop_lat" style="visibility: hidden;"> </p>    
+          <p id = "cost" style="visibility: hidden;"> </p>     
+       <!--  <input id="destination-input" class="controls" type="text" placeholder="Enter a destination location">
+ -->
+
 
         
     </div>
@@ -254,22 +185,18 @@ include("../includes/headerL.php");
                         $(".overlay").hide();
                         $(".modal").hide();
                   //      $("#btn_directions").hide();
-                        $("#btn_dropoff").show();
+                        // $("#btn_directions").hide();
+                        // $("#btn_dropoff").show();
                         $("#client_long").text(res[0]);
                         $("#client_lat").text(res[1]);
-                        alert(res);
+                        // alert(res);
                     }
                 };
                 xmlhttp2.open("GET", "getUserLoc.php?username=" + client_username, true);
                 xmlhttp2.send();
             } 
 
-            function drawMap(dest_longitude, dest_longitude)
-            {
-                //SandyComet Anh draw map here?
-            }
-
-            function getDropOff()
+            function setDropOffLoc()
             {
                 $(".overlay").show();
                 $(".modal").show();
@@ -281,11 +208,14 @@ include("../includes/headerL.php");
                     if (xmlhttp2.readyState == 4 && xmlhttp2.status == 200) {
                         $coordinates = xmlhttp2.responseText;
                         var res = $coordinates.split("|");
-                        drawMap(res[0],res[1])
+                      //  drawMap(res[0],res[1])
                         $(".overlay").hide();
                         $(".modal").hide();
-                        $("#btn_dropoff").hide();
-                        $("#btn_complete").show();
+                        $("#btn_dropoff").show();
+                        $("#btn_directions").hide();
+                        $("#drop_long").text(res[0]);
+                        $("#drop_lat").text(res[1]); 
+                        $("#cost").text(res[2]);
                     }
                 };
                 xmlhttp2.open("GET", "getDropOff.php?username=" + client_username, true);
@@ -293,19 +223,26 @@ include("../includes/headerL.php");
             }
 
 
+            function hideDropShowComp()
+            {
+                $("#btn_dropoff").hide();
+                $("#btn_complete").show();
+            }
+
             function completeTrans()
             {
                 $(".overlay").show();
                 $(".modal").show();
                 var client_username = $("#client_username_hidden").text();
                 var driver_username = $("#username_hidden").text();
+                var cost = $("#cost").text();
                 // alert(client_username);
                 // alert(driver_username);
                 var xmlhttp2 = new XMLHttpRequest();
                 xmlhttp2.onreadystatechange = function() {
                     if (xmlhttp2.readyState == 4 && xmlhttp2.status == 200) {
-                        $cost = xmlhttp2.responseText;
-                        alert("Your recent trip cost " + $cost);
+                        cost = xmlhttp2.responseText;
+                        alert("Your recent trip cost the customer" + cost);
                         $(".overlay").hide();
                         $(".modal").hide();
                         $("#btn_complete").hide();
@@ -313,8 +250,7 @@ include("../includes/headerL.php");
                         
                     }
                 };
-                 
-                xmlhttp2.open("GET", "completeTrans.php?driver=" + driver_username + "&client=" + client_username + "&status=COMPT", true);
+                xmlhttp2.open("GET", "completeTrans.php?driver=" + driver_username + "&client=" + client_username + "&status=COMPT" ,true);
                 xmlhttp2.send();
             }
             function initMap() {
@@ -361,6 +297,13 @@ include("../includes/headerL.php");
                 document.getElementById('btn_directions').addEventListener('click', function(){
                     var customerPosition = {lat: parseFloat($("#client_lat").text()),
                                                     lng: parseFloat($("#client_long").text())
+                    };
+                    console.log("Destination: " + customerPosition);
+                    calculateAndDisplayRoute(directionsService, directionsDisplay, pos, customerPosition );});
+
+                   document.getElementById('btn_dropoff').addEventListener('click', function(){
+                    var customerPosition = {lat: parseFloat($("#drop_lat").text()),
+                                                    lng: parseFloat($("#drop_long").text())
                     };
                     console.log("Destination: " + customerPosition);
                     calculateAndDisplayRoute(directionsService, directionsDisplay, pos, customerPosition );});

@@ -26,6 +26,9 @@ $ClName = $UserInf->USERNAME;
 $lat = $_GET["lat"];
 $long =  $_GET["lon"];
 $fare = $_GET["fare"];
+$lat2 = $_GET["lat2"];
+$long2 =  $_GET["lon2"];
+// $c_user =  $_GET["c_user"];
 
 
 /**
@@ -73,12 +76,18 @@ if (intval($clTimes[0]['time'])<30) {
     $row = mysqli_fetch_object($driverLoc);
     $driverLat = $row->CURRENT_LATITUDE;
     $driverLong = $row->CURRENT_LONGITUDE;
-
-
     $db->close();
+
     $db = new mysqli($host, $username, $password, $dbname);
-    /*$query="CALL SP_LINK_USER('$closestDriver','$ClName', $lat, $long, $driverLat , $driverLong)";
-    $db->query($query);*/
+    $query="CALL SP_LINK_USER('$closestDriver','$ClName', $lat, $long, $driverLat , $driverLong)";
+    console.log($query);
+    $db->query($query);
+    $db->close();
+
+
+    $db = new mysqli($host, $username, $password, $dbname);
+    $query="CALL SP_SEND_DROP_OFF_LOC('{$ClName}', {$long2}, {$lat2}, {$fare})";
+    $db->query($query);
 //echo $query;
 } else {
 
@@ -444,9 +453,9 @@ $db->close();
     </div>
     <div class="vcenter col-md-10 col-md-offset-1 ">
 
-    <p class="vcenter" id="Crappola">Your Driver is on the way! Our drivers take the fastest route
+    <p class="vcenter" id="Crappola" style="color: white;">Your Driver is on the way! Our drivers take the fastest route
         possible and the approximate route the driver will be taking is shown above. Please be patient and our driver
-        will arrive within 30 minutes. <h2 style="background:#4c4c79;color:#bcbca5;font-size:2em;">Remember your fare is $<?php echo $fare?></h2></p>
+        will arrive within 30 minutes. <h2 style="color:#bcbca5;font-size:2em;">Remember your fare is $<?php echo $fare?></h2></p>
 
     </div>
 </section>
