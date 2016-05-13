@@ -2,7 +2,6 @@
 require("../includes/common.php");
 include("../includes/headerL.php");
 
-
 $db = new mysqli($host, $username, $password, $dbname);
 
 /* check connection */
@@ -44,6 +43,39 @@ while ($row = mysqli_fetch_object($driverL)) {
     <meta http-equiv="pragma" content="no-cache">
 </head>
 <header id="top" class="header1">
+    <style>
+        .vcenter {
+            position: relative;
+            top: 5%;
+            text-align: center;
+        }
+
+        #destination-input:focus {
+            border-color: #4d90fe;
+        }
+
+        #destination-input {
+            background-color: #fff;
+            font-family: Roboto;
+            font-size: 15px;
+            font-weight: 300;
+            margin-left: 12px;
+            padding: 0 11px 0 13px;
+            text-overflow: ellipsis;
+            width: 200px;
+        }
+
+        .controls {
+            margin-top: 10px;
+            border: 1px solid transparent;
+            border-radius: 2px 0 0 2px;
+            box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            height: 32px;
+            outline: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+    </style>
 
     <script>
 
@@ -53,25 +85,20 @@ while ($row = mysqli_fetch_object($driverL)) {
 </header>
 
 
+<!-- About -->
 <section id="about" class="about">
 
-
-
-    <div id="map">
+    <div id="map" class="col-md-8 col-md-offset-2" style="height: 75%;">
     </div>
-
+    <div class="col-md-8 col-md-offset-3">
+        <input id="destination-input" class="controls" type="text"
+               placeholder="Enter a destination location">
+    </div>
     <div class="vcenter col-md-10 col-md-offset-1 ">
-
-        <p class="vcenter"><h2>Enter Destination:</h2></p>
-
-        <input id="destination-input" class="controls" type="text" placeholder="Enter a destination location">
-
-        <form>
+        <form action="/php/calcCompTime.php">
             <input type="button" value="Request a Driver" onclick="getLocationP()" class="btn-teal"
                    style="height: 100px; width: 300px; font-size: 30px;"/>
         </form>
-
-        
     </div>
 
 </section>
@@ -115,9 +142,19 @@ while ($row = mysqli_fetch_object($driverL)) {
 <script>
     var driverLat = <?php echo json_encode($Lat) ?>;
     var driverLong = <?php echo json_encode($Long) ?>;
-    var fare = 0;
 
+    function getLocationP() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPositionP);
+        }
+    }
 
+    function showPositionP(position) {
+
+        var lat = position.coords.latitude;
+        var lon = position.coords.longitude;
+        window.location.href = "/php/GetDriver.php?lat=" + lat + "&lon=" + lon;
+    }
 
     function calcFare(distance, time) {
         var costPerMeter = .0005;
@@ -275,6 +312,7 @@ while ($row = mysqli_fetch_object($driverL)) {
         }
 
         function callback(response, status) {
+            var fare = 0;
             var time = "";
             var miles = "";
             if (status == google.maps.DistanceMatrixStatus.OK) {
@@ -306,28 +344,7 @@ while ($row = mysqli_fetch_object($driverL)) {
         }
 
 
-
-
-
     }
-
-    console.log(fare);
-
-    function getLocationP() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(showPositionP);
-        }
-    }
-
-
-    function showPositionP(position) {
-
-        var lat = position.coords.latitude;
-        var lon = position.coords.longitude;
-        window.location.href = "/php/GetDriver.php?lat=" + lat + "&lon=" + lon + "&fare=" + parseFloat(Math.round(fare * 100) / 100).toFixed(2);
-    }
-
-
 </script>
 <script
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAAo_ycMAjDvH5v14Z595CyEIr5zbHEnFQ&libraries=places&callback=initMap"
@@ -354,8 +371,22 @@ while ($row = mysqli_fetch_object($driverL)) {
         $("#sidebar-wrapper").toggleClass("active");
     });
 
+    // Scrolls to the selected menu item on the page
+    $(function () {
+        $('a[href*=#]:not([href=#])').click(function () {
+            if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') || location.hostname == this.hostname) {
 
+                var target = $(this.hash);
+                target = target.length ? target : $('[name=' + this.hash.slice(1) + ']');
+                if (target.length) {
+                    $('html,body').animate({
+                        scrollTop: target.offset().top
+                    }, 1000);
+                    return false;
+                }
+            }
+        });
+    });
 </script>
-
 
 

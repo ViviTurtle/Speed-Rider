@@ -21,11 +21,11 @@ $driverL = $db->query($query);
 
 
 
-    //Client $test = $_POST['position'];
-    $ClName = $UserInf->USERNAME;
-    $lat = $_GET["lat"];
-    $long =  $_GET["lon"];
-    $fare = $_GET["fare"];
+//Client $test = $_POST['position'];
+$ClName = $UserInf->USERNAME;
+$lat = $_GET["lat"];
+$long =  $_GET["lon"];
+$fare = $_GET["fare"];
 
 
 /**
@@ -58,35 +58,35 @@ foreach($Driv as $key=>$value) {
 usort($clTimes, function($a, $b) {
     return $a['time'] - $b['time'];
 });
-
 // echo '<br><br>Sorted Array<br>';
 // print_r($clTimes);
 
-//echo '<br><br>'.$Driv[0].' is paired with '.$ClName.'<br>';
+if (intval($clTimes[0]['time'])<30) {
+    $closestDriver = $clTimes[0]['uname'];
+
+    $db->close();
+    $db = new mysqli($host, $username, $password, $dbname);
+    $query = "CALL SP_GET_USER_LOC('$closestDriver')";
+    $driverLoc = $db->query($query);
 
 
-
-$db->close();
-
-
-$db = new mysqli($host,$username,$password,$dbname);
-$query="CALL SP_GET_USER_LOC('$Driv[0]')";
-
-$driverLoc = $db->query($query);
+    $row = mysqli_fetch_object($driverLoc);
+    $driverLat = $row->CURRENT_LATITUDE;
+    $driverLong = $row->CURRENT_LONGITUDE;
 
 
-
-$row = mysqli_fetch_object($driverLoc);
-$driverLat = $row->CURRENT_LATITUDE;
-$driverLong = $row->CURRENT_LONGITUDE;
-
-
-$db->close();
-$db = new mysqli($host,$username,$password,$dbname);
-$query="CALL SP_LINK_USER('$Driv[0]','$ClName', $lat, $long, $driverLat , $driverLong)";
-$db->query($query);
+    $db->close();
+    $db = new mysqli($host, $username, $password, $dbname);
+    /*$query="CALL SP_LINK_USER('$closestDriver','$ClName', $lat, $long, $driverLat , $driverLong)";
+    $db->query($query);*/
 //echo $query;
+} else {
 
+    echo "<script>window.alert(\"We failed you. All our drivers are not within 30 minutes of you. Our drivers will be appropriately flogged and punished. You will be redirected to logout. We suck! \");</script>";
+    header('Location:./logout');
+    exit;
+
+}
 unset($clTimes);
 
 unset($Driv);
@@ -111,220 +111,360 @@ $db->close();
     <meta http-equiv="pragma" content="no-cache">
 </head>
 <header id="top" class="header1">
-<style>
-.vcenter {
-    position: relative; 
-    top: 5%;
-    text-align: center;
-}
-</style>
 </header>
 
 
 
-<!-- About -->
-<section id="about" class="about">
-
-    <input id="pac-input" class="controls" type="text"
-           placeholder="Enter a location">
-    <div id="type-selector" class="controls">
-        <input type="radio" name="type" id="changetype-all" checked="checked">
-        <label for="changetype-all">All</label>
-
-        <input type="radio" name="type" id="changetype-establishment">
-        <label for="changetype-establishment">Establishments</label>
-
-        <input type="radio" name="type" id="changetype-address">
-        <label for="changetype-address">Addresses</label>
-
-        <input type="radio" name="type" id="changetype-geocode">
-        <label for="changetype-geocode">Geocodes</label>
-    </div>
-    <br/>
-    <br/>
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAAo_ycMAjDvH5v14Z595CyEIr5zbHEnFQ&libraries=geometry"></script>
 
 
-    <div id="map" class="col-md-8 col-md-offset-2" style="height: 75%;">
+
+
+<!-- Maps -->
+<script>
+    var passLat = parseFloat(<?php echo json_encode($lat) ?>);
+    var passLong = parseFloat(<?php echo json_encode($long) ?>);
+
+    var driverLat = parseFloat(<?php echo json_encode($driverLat) ?>);
+    var driverLong = parseFloat(<?php echo json_encode($driverLong) ?>);
+    var map;
+    var directionDisplay;
+    var directionsService;
+    var stepDisplay;
+    var markerArray = [];
+    var position;
+    var marker = null;
+    var polyline = null;
+    var poly2 = null;
+    var speed = 0.000005,
+        wait = 1;
+    var infowindow = null;
+
+    var myPano;
+    var panoClient;
+    var nextPanoId;
+    var timerHandle = null;
+
+    function createMarker(latlng, label, html) {
+// alert("createMarker("+latlng+","+label+","+html+","+color+")");
+        var contentString = '<b>' + label + '</b><br>' + html;
+        var marker = new google.maps.Marker({
+            position: latlng,
+            map: map,
+            title: label,
+            zIndex: Math.round(latlng.lat() * -100000) << 5
+        });
+        marker.setIcon(({
+            url: '/img/VanSpriteSmall.png',
+            
+        }));
+
         
+        marker.myname = label;
+// gmarkers.push(marker);
+
+        google.maps.event.addListener(marker, 'click', function() {
+            infowindow.setContent(contentString);
+            infowindow.open(map, marker);
+        });
+        return marker;
+    }
+
+
+    function initialize() {
+        infowindow = new google.maps.InfoWindow({
+            size: new google.maps.Size(150, 50)
+        });
+// Instantiate a directions service.
+        directionsService = new google.maps.DirectionsService();
+
+// Create a map and center it on Manhattan.
+        var myOptions = {
+            zoom: 13,
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
+            scrollwheel: false,
+            scaleControl: false,
+            streetViewControl: false
+        }
+        map = new google.maps.Map(document.getElementById("map"), myOptions);
+
+        address = 'san jose';
+        geocoder = new google.maps.Geocoder();
+        geocoder.geocode({
+            'address': address
+        }, function(results, status) {
+            map.setCenter(results[0].geometry.location);
+        });
+
+// Create a renderer for directions and bind it to the map.
+        var rendererOptions = {
+            map: map,
+            suppressMarkers: true
+        }
+        directionsDisplay = new google.maps.DirectionsRenderer(rendererOptions);
+
+// Instantiate an info window to hold step text.
+        stepDisplay = new google.maps.InfoWindow();
+
+        polyline = new google.maps.Polyline({
+            path: [],
+            strokeColor: '#FF0000',
+            strokeWeight: 3
+        });
+        poly2 = new google.maps.Polyline({
+            path: [],
+            strokeColor: '#FF0000',
+            strokeWeight: 3
+        });
+
+        calcRoute();
+    }
+
+
+
+    var steps = [];
+
+    function calcRoute() {
+
+        if (timerHandle) {
+            clearTimeout(timerHandle);
+        }
+        if (marker) {
+            marker.setMap(null);
+        }
+        polyline.setMap(null);
+        poly2.setMap(null);
+        directionsDisplay.setMap(null);
+        polyline = new google.maps.Polyline({
+            path: [],
+            strokeColor: '#FF0000',
+            strokeWeight: 3
+        });
+        poly2 = new google.maps.Polyline({
+            path: [],
+            strokeColor: '#FF0000',
+            strokeWeight: 3
+        });
+// Create a renderer for directions and bind it to the map.
+        var rendererOptions = {
+            map: map,
+            suppressMarkers: true
+        }
+
+        directionsDisplay = new google.maps.DirectionsRenderer(rendererOptions);
+
+
+
+        var start = {lat: driverLat, lng: driverLong};
+        var end = {lat: passLat, lng: passLong};
+        var travelMode = google.maps.DirectionsTravelMode.DRIVING
+
+
+        var passMarker = new google.maps.Marker({
+            position: end,
+            map: map,
+            draggable: false
+        });
+        passMarker.setIcon(({
+            url: '/img/PassM.png',
+            size: new google.maps.Size(75, 75),
+            origin: new google.maps.Point(0, 0),
+            anchor: new google.maps.Point(10, 10)
+        }));
+        passMarker.setVisible(true);
+
+        var infoWindow = new google.maps.InfoWindow({map: map});
+        infoWindow.setPosition(end);
+        infoWindow.setContent('THIS IS YOU!');
+
+        var request = {
+            origin: start,
+            destination: end,
+            travelMode: travelMode
+        };
+
+// Route the directions and pass the response to a
+// function to create markers for each step.
+        directionsService.route(request, function(response, status) {
+            if (status == google.maps.DirectionsStatus.OK) {
+                directionsDisplay.setDirections(response);
+
+                var bounds = new google.maps.LatLngBounds();
+                var route = response.routes[0];
+                startLocation = new Object();
+                endLocation = new Object();
+
+// For each route, display summary information.
+                var path = response.routes[0].overview_path;
+                var legs = response.routes[0].legs;
+                for (i = 0; i < legs.length; i++) {
+                    if (i == 0) {
+                        startLocation.latlng = legs[i].start_location;
+                        startLocation.address = legs[i].start_address;
+                        marker = createMarker(legs[i].start_location, "The ROUTE", legs[i].start_address, "green");
+                    }
+                    endLocation.latlng = legs[i].end_location;
+                    endLocation.address = legs[i].end_address;
+                    var steps = legs[i].steps;
+                    for (j = 0; j < steps.length; j++) {
+                        var nextSegment = steps[j].path;
+                        for (k = 0; k < nextSegment.length; k++) {
+                            polyline.getPath().push(nextSegment[k]);
+                            bounds.extend(nextSegment[k]);
+
+
+
+                        }
+                    }
+                }
+
+                polyline.setMap(map);
+                map.fitBounds(bounds);
+//        createMarker(endLocation.latlng,"end",endLocation.address,"red");
+                map.setZoom(18);
+                startAnimation();
+            }
+        });
+    }
+
+
+
+    var step = 50; // 5; // metres
+    var tick = 100; // milliseconds
+    var eol;
+    var k = 0;
+    var stepnum = 0;
+    var speed = "";
+    var lastVertex = 1;
+
+
+    //=============== animation functions ======================
+    function updatePoly(d) {
+// Spawn a new polyline every 20 vertices, because updating a 100-vertex poly is too slow
+        if (poly2.getPath().getLength() > 20) {
+            poly2 = new google.maps.Polyline([polyline.getPath().getAt(lastVertex - 1)]);
+// map.addOverlay(poly2)
+        }
+
+        if (polyline.GetIndexAtDistance(d) < lastVertex + 2) {
+            if (poly2.getPath().getLength() > 1) {
+                poly2.getPath().removeAt(poly2.getPath().getLength() - 1)
+            }
+            poly2.getPath().insertAt(poly2.getPath().getLength(), polyline.GetPointAtDistance(d));
+        } else {
+            poly2.getPath().insertAt(poly2.getPath().getLength(), endLocation.latlng);
+        }
+    }
+
+
+    function animate(d) {
+// alert("animate("+d+")");
+        if (d > eol) {
+            map.panTo(endLocation.latlng);
+            return;
+        }
+        var p = polyline.GetPointAtDistance(d);
+        map.panTo(p);
+        marker.setPosition(p);
+        updatePoly(d);
+        timerHandle = setTimeout("animate(" + (d + step) + ")", tick);
+    }
+
+
+    function startAnimation() {
+        eol = google.maps.geometry.spherical.computeLength(polyline.getPath());
+        map.setCenter(polyline.getPath().getAt(0));
+        poly2 = new google.maps.Polyline({
+            path: [polyline.getPath().getAt(0)],
+            strokeColor: "#0000FF",
+            strokeWeight: 10
+        });
+// map.addOverlay(poly2);
+        setTimeout("animate(50)", 2000); // Allow time for the initial map display
+    }
+
+
+    google.maps.event.addDomListener(window, "load", initialize);
+
+    google.maps.LatLng.prototype.latRadians = function() {
+        return this.lat() * Math.PI / 180;
+    }
+
+    google.maps.LatLng.prototype.lngRadians = function() {
+        return this.lng() * Math.PI / 180;
+    }
+
+
+    // === A method which returns a GLatLng of a point a given distance along the path ===
+    // === Returns null if the path is shorter than the specified distance ===
+    google.maps.Polyline.prototype.GetPointAtDistance = function(metres) {
+// some awkward special cases
+        if (metres == 0) return this.getPath().getAt(0);
+        if (metres < 0) return null;
+        if (this.getPath().getLength() < 2) return null;
+        var dist = 0;
+        var olddist = 0;
+        for (var i = 1;
+             (i < this.getPath().getLength() && dist < metres); i++) {
+            olddist = dist;
+            dist += google.maps.geometry.spherical.computeDistanceBetween(this.getPath().getAt(i), this.getPath().getAt(i - 1));
+        }
+        if (dist < metres) {
+            return null;
+        }
+        var p1 = this.getPath().getAt(i - 2);
+        var p2 = this.getPath().getAt(i - 1);
+        var m = (metres - olddist) / (dist - olddist);
+        return new google.maps.LatLng(p1.lat() + (p2.lat() - p1.lat()) * m, p1.lng() + (p2.lng() - p1.lng()) * m);
+    }
+
+    // === A method which returns the Vertex number at a given distance along the path ===
+    // === Returns null if the path is shorter than the specified distance ===
+    google.maps.Polyline.prototype.GetIndexAtDistance = function(metres) {
+// some awkward special cases
+        if (metres == 0) return this.getPath().getAt(0);
+        if (metres < 0) return null;
+        var dist = 0;
+        var olddist = 0;
+        for (var i = 1;
+             (i < this.getPath().getLength() && dist < metres); i++) {
+            olddist = dist;
+            dist += google.maps.geometry.spherical.computeDistanceBetween(this.getPath().getAt(i), this.getPath().getAt(i - 1));
+        }
+        if (dist < metres) {
+            return null;
+        }
+        return i;
+    }
+</script>
+
+<!-- About -->
+<section class=about >
+    <div id="map">
     </div>
+    <div class="vcenter col-md-10 col-md-offset-1 ">
 
-    <script>
-        var driverLat = <?php echo json_encode($driverLat) ?>;
-        var driverLong = <?php echo json_encode($driverLong) ?>;
+    <p class="vcenter" id="Crappola">Your Driver is on the way! Our drivers take the fastest route
+        possible and the approximate route the driver will be taking is shown above. Please be patient and our driver
+        will arrive within 30 minutes. <h2 style="background:#4c4c79;color:#bcbca5;font-size:2em;">Remember your fare is $<?php echo $fare?></h2></p>
 
-        console.log(driverLat);
-        /**
-         * Initialization of Grabbing Geolocation
-         */
-        function initCoords() {
-            var bayarea = new google.maps.LatLng(37.547841, -122.003326);
-            var browserSupportFlag = Boolean();
-            /*
-             Check if geolocation is allowed.
-             */
-            if (navigator.geolocation) {
-                browserSupportFlag = true;
-                navigator.geolocation.getCurrentPosition(initMap, function () {
-                    noGeolocation(browserSupportFlag);
-                });
-            } else {
-                browserSupportFlag = false;
-                noGeolocation(browserSupportFlag);
-            }
-            function noGeolocation(errorFlag) {
-                if (errorFlag == true) {
-                    alert("Geolocation service failed.");
-                    initMap(bayarea);
-                } else {
-                    alert("Your browser doesn't support geolocation. We've placed you in Siberia.");
-                    initMap(bayarea);
-                }
-            }
-        }
-        function initMap(position) {
-            // This Variable is to convert position into a LatLng object if it isn't already.
-            var convert;
-            var driverList = [
-                {lat: 37.20422, lng: -121.84769},
-                {lat: 37.36742, lng: -121.98267},
-                {lat: 37.33413, lng: -121.88052},
-            ];
-
-            var curPos = {
-                "lat" : position.coords.latitude,
-                "lon" : position.coords.longitude
-            };
-
-            $.ajax ({
-                url:   '/includes/test.php',
-                type:  "POST",
-                data: curPos,
-                success: function(data){
-                    console.log(data);
-                }
-            });
-            /**
-             * Noticed that the geolocation callback function returns an object of position where
-             * there is this position.location.latitude and position.location.longitude. This type of
-             * object seems to not always work and gives me errors. Changed all variables instead to
-             * google.maps.LatLng() to keep consistent.
-             * */
-            if (position instanceof google.maps.LatLng) {
-                var map = new google.maps.Map(document.getElementById('map'), {
-                    center: {lat: position.lat(), lng: position.lng()},
-                    zoom: 10
-                });
-                convert = position;
-            } else {
-                var map = new google.maps.Map(document.getElementById('map'), {
-                    center: {lat: position.coords.latitude, lng: position.coords.longitude},
-                    zoom: 10
-                });
-                convert = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-            }
-            // Add layer of Traffic
-            var traffic = new google.maps.TrafficLayer();
-            traffic.setMap(map);
-            var input = /** @type {!HTMLInputElement} */(
-                document.getElementById('pac-input'));
-            var types = document.getElementById('type-selector');
-            map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-            map.controls[google.maps.ControlPosition.TOP_LEFT].push(types);
-            var autocomplete = new google.maps.places.Autocomplete(input);
-            autocomplete.bindTo('bounds', map);
-            var infowindow = new google.maps.InfoWindow();
-            // User Marker
-            var marker = new google.maps.Marker({
-                position: {lat: convert.lat(), lng: convert.lng()},
-                map: map,
-                anchorPoint: new google.maps.Point(0, -29),
-                draggable: false
-            });
-            marker.setIcon(({
-                url: '/img/PassM.png',
-                size: new google.maps.Size(75, 75),
-                origin: new google.maps.Point(0, 0),
-                anchor: new google.maps.Point(0, 32)
-            }));
-            // Driver Markers
-            for (var i = 0; i < driverList.length; i++){
-                var driverMarker = new google.maps.Marker({
-                    position: driverList[i],
-                    map: map,
-                    draggable: false
-                });
-                driverMarker.setIcon(({
-                    url: '/img/VanSpriteSmall.png',
-                    size: new google.maps.Size(75, 75),
-                    origin: new google.maps.Point(0, 0),
-                    anchor: new google.maps.Point(0, 32)
-                }));
-                driverMarker.setVisible(true);
-            }
-            autocomplete.addListener('place_changed', function () {
-                infowindow.close();
-                marker.setVisible(false);
-                var place = autocomplete.getPlace();
-                if (!place.geometry) {
-                    window.alert("Autocomplete's returned place contains no geometry");
-                    return;
-                }
-                // If the place has a geometry, then present it on a map.
-                if (place.geometry.viewport) {
-                    map.fitBounds(place.geometry.viewport);
-                } else {
-                    map.setCenter(place.geometry.location);
-                    map.setZoom(17);  // Why 17? Because it looks good.
-                }
-                marker.setPosition(place.geometry.location);
-                marker.setVisible(true);
-                var address = '';
-                if (place.address_components) {
-                    address = [
-                        (place.address_components[0] && place.address_components[0].short_name || ''),
-                        (place.address_components[1] && place.address_components[1].short_name || ''),
-                        (place.address_components[2] && place.address_components[2].short_name || '')
-                    ].join(' ');
-                }
-                infowindow.setContent('<div><strong>' + place.name + '</strong><br>' + address);
-                infowindow.open(map, marker);
-            });
-            // Sets a listener on a radio button to change the filter type on Places
-            // Auto-complete
-            function setupClickListener(id, types) {
-                var radioButton = document.getElementById(id);
-                radioButton.addEventListener('click', function () {
-                    autocomplete.setTypes(types);
-                });
-            }
-
-
-
-            setupClickListener('changetype-all', []);
-            setupClickListener('changetype-address', ['address']);
-            setupClickListener('changetype-establishment', ['establishment']);
-            setupClickListener('changetype-geocode', ['geocode']);
-        }
-    </script>
-
-
+    </div>
 </section>
-
-
 
 
 <!-- Footer -->
 <footer>
+
     <section id="contact">
         <div class="container">
             <div class="row">
                 <div class="col-lg-10 col-lg-offset-1 text-center">
                     <h4><strong>Speed Rider Team</strong>
                     </h4>
-                    <p>1 Washington Square<br>San Jose, CA 95192</p>
+                    <p><h5>1 Washington Square<br>San Jose, CA 95192</h5></p>
                     <ul class="list-unstyled">
-                        <li><i class="fa fa-phone fa-fw"></i> (123) 456-7890</li>
-                        <li><i class="fa fa-envelope-o fa-fw"></i>  <a href="mailto:name@example.com">students@sjsu.edu</a>
+                        <li><h5><i class="fa fa-phone fa-fw"></i>(123) 456-7890</h5> </li>
+                        <li><h5><i class="fa fa-envelope-o fa-fw"></i></h5> <a href="mailto:fakeemail@speedrider.ninja">students@sjsu.edu</a>
                         </li>
                     </ul>
                     <br>
@@ -345,12 +485,10 @@ $db->close();
 </footer>
 
 
-<!-- Maps -->
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCBJjObeyq52A4L2wUzNdUDLS6ohWWtI2c&libraries=places&callback=initCoords"
-        async defer></script>
+<!-- end snippet -->
 
 
-<!-- jQuery -->
+<script type ="text/javascript" src="/js/epoly.js"></script><!-- jQuery -->
 <script src="/js/jquery-1.12.3.min.js"></script>
 
 <!-- Bootstrap Core JavaScript -->
@@ -370,20 +508,5 @@ $db->close();
         $("#sidebar-wrapper").toggleClass("active");
     });
 
-    // Scrolls to the selected menu item on the page
-    $(function() {
-        $('a[href*=#]:not([href=#])').click(function() {
-            if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') || location.hostname == this.hostname) {
 
-                var target = $(this.hash);
-                target = target.length ? target : $('[name=' + this.hash.slice(1) + ']');
-                if (target.length) {
-                    $('html,body').animate({
-                        scrollTop: target.offset().top
-                    }, 1000);
-                    return false;
-                }
-            }
-        });
-    });
 </script>

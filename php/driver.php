@@ -107,6 +107,8 @@ include("../includes/headerL.php");
         <p name="Latitude" id="latitude" style="color: yellow; font-size: large;"> </p>
         <?php echo '<p id = "username_hidden" style="visibility: hidden;">'.$UserInf->USERNAME.'</p>'?>
         <p id = "client_username_hidden" style="visibility: hidden;"> </p>
+         <p id = "client_long" style="visibility: hidden;"> </p>
+          <p id = "client_lat" style="visibility: hidden;"> </p>
         <p name="Longitude" id="longitude" style="color: yellow; font-size: large;"> </p>
         <p name="Longitude" id="longitude" style="color: yellow; font-size: large;"> </p>
         <p name="Longitude" id="longitude" style="color: yellow; font-size: large;"> </p>
@@ -119,7 +121,7 @@ include("../includes/headerL.php");
                    style="height: 100px; width: 300px; font-size: 30px;" id="btn_request"/>
         </form>
           <form>
-            <input type="button" value="Get Directions To Client" class="btn-teal" onclick="getClientLoc()"
+            <input type="button" value="Get Directions To Client" class="btn-teal"
                    style="height: 100px; width: 300px; font-size: 30px;" id="btn_directions"/>
         </form>
         <form>
@@ -228,6 +230,7 @@ include("../includes/headerL.php");
                         $("#btn_request").hide();
                         $("#btn_directions").show();
                         $("#client_username_hidden").text($client_user);
+                        getClientLoc();
                         // alert("Client Usename {$client_user} ")
                     }
                 };
@@ -247,11 +250,14 @@ include("../includes/headerL.php");
                     if (xmlhttp2.readyState == 4 && xmlhttp2.status == 200) {
                         $coordinates = xmlhttp2.responseText;
                         var res = $coordinates.split("|");
-                        drawMap(res[0],res[1])
+                        // drawMap(res[0],res[1])
                         $(".overlay").hide();
                         $(".modal").hide();
-                        $("#btn_directions").hide();
+                  //      $("#btn_directions").hide();
                         $("#btn_dropoff").show();
+                        $("#client_long").text(res[0]);
+                        $("#client_lat").text(res[1]);
+                        alert(res);
                     }
                 };
                 xmlhttp2.open("GET", "getUserLoc.php?username=" + client_username, true);
@@ -348,20 +354,26 @@ include("../includes/headerL.php");
                     // Browser doesn't support Geolocation
                     handleLocationError(false, infoWindow, map.getCenter());
                 }
-                // var customerPosition = 
-                var onChangeHandler = function() {
-                    calculateAndDisplayRoute(directionsService, directionsDisplay, pos);
-                };
-                document.getElementById('click').addEventListener('click', onChangeHandler);
+                                
+    //            var onChangeHandler = function() {
+      //              calculateAndDisplayRoute(directionsService, directionsDisplay, pos, customerPosition );
+      //          };
+                document.getElementById('btn_directions').addEventListener('click', function(){
+                    var customerPosition = {lat: parseFloat($("#client_lat").text()),
+                                                    lng: parseFloat($("#client_long").text())
+                    };
+                    console.log("Destination: " + customerPosition);
+                    calculateAndDisplayRoute(directionsService, directionsDisplay, pos, customerPosition );});
+
                 var trafficLayer = new google.maps.TrafficLayer();
                 trafficLayer.setMap(map);
 
             }
 
-        function calculateAndDisplayRoute(directionsService, directionsDisplay, pos) {
+        function calculateAndDisplayRoute(directionsService, directionsDisplay, pos, dest) {
             directionsService.route({
                 origin: pos,
-                destination: {lat: 37.309579, lng: -121.846201},
+                destination: dest,
                 travelMode: google.maps.TravelMode.DRIVING
             }, function(response, status) {
                 if (status === google.maps.DirectionsStatus.OK) {
