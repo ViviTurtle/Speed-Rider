@@ -91,10 +91,18 @@ while ($row = mysqli_fetch_object($driverL)) {
     <div id="map" class="col-md-8" style="height: 75%;">
     </div>
     <div class="vcenter col-md-8 col-md-offset-2">
-        <input id="destination-input" class="controls" type="text"
-               placeholder="Enter a destination location" style="width: 40%;">
-    </div>
-    <div class="vcenter col-md-10 col-md-offset-1">
+	<p class="vcenter" id="Crappo">Welcome! Thank you for using Speed Rider where speed trumps safety. Please
+            enter your final destination below and we'll calculate the time and distance it will take us to get you there.
+            Thanks for choosing Speed Rider!
+            
+	</p>
+
+	<h2>Enter Destination:</h2>
+	   	<input id="destination-input" class="controls" type="text"
+               placeholder="Enter a destination location" style="width: 40%;">     
+	
+   </div>
+<div class="vcenter col-md-10 col-md-offset-1">
         <form action="/php/calcCompTime.php">
             <input type="button" value="Request a Driver" onclick="getLocationP()" class="btn-teal"
                    style="height: 100px; width: 300px; font-size: 30px;"/>
@@ -104,7 +112,14 @@ while ($row = mysqli_fetch_object($driverL)) {
 </section>
 
 
-<!-- Footer -->
+<section id="contact">
+
+    <br><br><br><br><br><br><br><br><br><br><br><br>
+
+
+</section>
+
+
 <footer>
      <p id = "drop_off_long" style="visibility: hidden;"> </p>
      <p id = "drop_off_lat" style="visibility: hidden;"> </p>
@@ -115,11 +130,10 @@ while ($row = mysqli_fetch_object($driverL)) {
                 <div class="col-lg-10 col-lg-offset-1 text-center">
                     <h4><strong>Speed Rider Team</strong>
                     </h4>
-                    <p>1 Washington Square<br>San Jose, CA 95192</p>
+                    <p><h5>1 Washington Square<br>San Jose, CA 95192</h5></p>
                     <ul class="list-unstyled">
-                        <li><i class="fa fa-phone fa-fw"></i> (123) 456-7890</li>
-                        <li><i class="fa fa-envelope-o fa-fw"></i> <a
-                                href="mailto:name@example.com">students@sjsu.edu</a>
+                        <li><h5><i class="fa fa-phone fa-fw"></i>(123) 456-7890</h5> </li>
+                        <li><h5><i class="fa fa-envelope-o fa-fw"></i></h5> <a href="mailto:fakeemail@speedrider.ninja">students@sjsu.edu</a>
                         </li>
                     </ul>
                     <br>
@@ -173,15 +187,12 @@ while ($row = mysqli_fetch_object($driverL)) {
     function initMap() {
 
         driverList = [];
-        if (driverLat.length === null || driverLat.length === 0) {
-            driverList = [
-                {lat: 373351420, lng: -121.8811}
-            ]
-        } else {
-            for (i = 0; i < driverLat.length; i++) {
-                driverList[i] = {lat: Number(driverLat[i]), lng: Number(driverLong[i])};
-            }
-        }
+         if (typeof driverLat[0] !== 'undefined') {
+		for (i = 0; i < driverLat.length; i++) {
+        	        driverList[i] = {lat: Number(driverLat[i]), lng: Number(driverLong[i])};
+        	    }
+		
+            } 
 
 
         var destination_place_id = null;
@@ -226,20 +237,22 @@ while ($row = mysqli_fetch_object($driverL)) {
             handleLocationError(false, infoWindow, map.getCenter());
         }
         // Driver Markers
-        for (var i = 0; i <= driverList.length; i++) {
-            var driverMarker = new google.maps.Marker({
-                position: driverList[i],
-                map: map,
-                draggable: false
-            });
-            driverMarker.setIcon(({
-                url: '/img/VanSpriteSmall.png',
-                size: new google.maps.Size(75, 75),
-                origin: new google.maps.Point(0, 0),
-                anchor: new google.maps.Point(0, 32)
-            }));
-            driverMarker.setVisible(true);
-        }
+	if (driverList.length !== 0) {
+		for (var i = 0; i <= driverList.length; i++) {
+		    var driverMarker = new google.maps.Marker({
+		        position: driverList[i],
+		        map: map,
+		        draggable: false
+		    });
+		    driverMarker.setIcon(({
+		        url: '/img/VanSpriteSmall.png',
+		        size: new google.maps.Size(75, 75),
+		        origin: new google.maps.Point(0, 0),
+		        anchor: new google.maps.Point(0, 32)
+		    }));
+		    driverMarker.setVisible(true);
+		}
+	}
 
         // getting the destination. To get lat and long, use document.getElementById('destination-input'). value
         var destination_input = document.getElementById('destination-input');
@@ -346,17 +359,40 @@ while ($row = mysqli_fetch_object($driverL)) {
                          $("#fare").text(parseFloat(Math.round(fare * 100) / 100).toFixed(2));
                         var from = origins[i];
                         var to = destinations[j];
+
+			updateFare(fare, time, miles, from, to);
+			
+			window.alert("Your destination is " + miles + " away and will take " + time + ".\n"
+               		 + "The estimated fare for this trip is: $" + parseFloat(Math.round(fare * 100) / 100).toFixed(2)
+               		 + "\nRequest a driver if this is okay!");
+
                     }
                 }
             }
-            window.alert("Your destination is " + miles + " away and will take " + time + ".\n"
-                + "The estimated fare for this trip is: $" + parseFloat(Math.round(fare * 100) / 100).toFixed(2)
-                + "\nRequest a driver if this is okay!");
+            
+        }
+	
+	function updateFare(fare, time, miles, from, to) {
+            var test = parseFloat(Math.round(fare * 100) / 100).toFixed(2);
+            printFare(test, time, miles, from, to);
+
         }
 
+	function printFare(fare, time, miles, from, to) {
+
+        document.getElementById('Crappo').innerHTML = "Your trip FROM: " + from + " TO: " + to + " will take "
+            + time + " and travels a distance of " + miles + ". The total cost of the trip will be $" + fare +
+            ". If you agree with this trip. Please click REQUEST A DRIVER.";
+
+    	}
+	
 
     }
 </script>
+
+
+
+
 <script
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAAo_ycMAjDvH5v14Z595CyEIr5zbHEnFQ&libraries=places&callback=initMap"
     async defer></script>
@@ -382,22 +418,7 @@ while ($row = mysqli_fetch_object($driverL)) {
         $("#sidebar-wrapper").toggleClass("active");
     });
 
-    // Scrolls to the selected menu item on the page
-    $(function () {
-        $('a[href*=#]:not([href=#])').click(function () {
-            if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') || location.hostname == this.hostname) {
-
-                var target = $(this.hash);
-                target = target.length ? target : $('[name=' + this.hash.slice(1) + ']');
-                if (target.length) {
-                    $('html,body').animate({
-                        scrollTop: target.offset().top
-                    }, 1000);
-                    return false;
-                }
-            }
-        });
-    });
+    
 </script>
 
 
