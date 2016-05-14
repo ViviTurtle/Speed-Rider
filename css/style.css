@@ -913,6 +913,16 @@ p.change_link {
     width:100%;
 }
 
+#Crappo {
+    position: static;
+    width: 100%;
+    height: 200px;
+    background-color: #1e1e35;
+    color: whitesmoke;
+    margin-bottom: 50px;
+}
+
+
 
 
 .controls {
