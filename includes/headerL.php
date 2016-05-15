@@ -77,7 +77,9 @@
     
 <?php
 
+    if(!isset($_SESSION)){
     session_start();
+    }
     if(!isset($_SESSION['userLogged']) || empty($_SESSION['userLogged'])) {
         header('Location:../php/login.php#tologin');
         exit;
