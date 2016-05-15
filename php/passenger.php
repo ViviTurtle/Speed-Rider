@@ -187,7 +187,7 @@ while ($row = mysqli_fetch_object($driverL)) {
     function initMap() {
 
         driverList = [];
-         if (typeof driverLat[0] !== 'undefined') {
+         if (driverList[0] != null) {
 		for (i = 0; i < driverLat.length; i++) {
         	        driverList[i] = {lat: Number(driverLat[i]), lng: Number(driverLong[i])};
         	    }
