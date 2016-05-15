@@ -79,7 +79,21 @@ INSERT INTO `T_USER` VALUES
 , (13,'Client4','TESTING','Mae','Day','mday@sos.com','51423456',NULL,'CLIET','LFDRV',-121.90647,37.42653)
 , (14,'LinusT','TESTING','Linus','Torvalds','ltorvalds@os.com','9542341265',NULL,'CLIET','LFDRV',-121.99520,37.51664)
 , (15,'bjarmst','TESTING','B.J.','Armstrong','barmstrong@blah.com','8184524231',NULL,'CLIET','LFDRV',-121.88320,37.66521)
-, (22,'dsafaf','test','Test','test','test@test.com','test',NULL,'CLIET','OFFLN',NULL,NULL);
+, (16,'Driver6','TESTING','Kifta','John','batman2@gmail.com','4086074341',NULL,'DRIVR','LFCLT',-121.32020,37.56810)
+, (17,'Driver7','TESTING','Tidus','Frank','aquaman3@gmail.com','4086074351',NULL,'DRIVR','LFCLT',-121.32560,37.55424)
+, (18,'Driver8','TESTING','Yuna','Cloud','fastman4@gmail.com','4086074361',NULL,'DRIVR','LFCLT',-122.48892,37.75498)
+, (19,'Driver9','TESTING','Lulu','Tifa','hyperman5@gmail.com','4086074371',NULL,'DRIVR','LFCLT',-122.44652,37.72783)
+, (20,'Driver10','TESTING','Auron','Kent','slowman6@gmail.com','4086074381',NULL,'DRIVR','LFCLT',-122.42506,37.78198)
+, (21,'Driver11','TESTING','Wakka','DooDoo','TheDude@gmail.com','4089112394',NULL,'DRIVR','LFCLT',-121.878523,37.941961)
+, (22,'Driver12','TESTING','Squall','Crap','Sucks@gmail.com','4088222404',NULL,'DRIVR','LFCLT',-122.078409,37.986376)
+, (23,'Driver13','TESTING','Aerith','Obama','Presient@us.gov','4081111111',NULL,'DRIVR','LFCLT',-122.256937,37.859363)
+, (24,'Driver14','TESTING','Sephy','Choco','freakman1@gmail.com','4086074331',NULL,'DRIVR','LFCLT',-122.19276,37.33418)
+, (25,'Driver15','TESTING','Jeht','Anastsia','danceman2@gmail.com','4086074341',NULL,'DRIVR','LFCLT',-121.32020,37.56810)
+, (26,'Driver16','TESTING','Kat','Dragon','swimman3@gmail.com','4086074351',NULL,'DRIVR','LFCLT',-121.32560,37.55424)
+, (27,'Driver14','TESTING','Lindsay','Lohan','trainwreck@gmail.com','69696969',NULL,'DRIVR','LFCLT',-121.873024,37.667815) 
+, (28,'Driver15','TESTING','Hillary','Clinton','nonencrypted@emailserver.com','4088421234',NULL,'DRIVR','LFCLT',-122.098244,37.683033)
+, (29,'Driver16','TESTING','Kate','Spade','purses@blah.gov','5104234231',NULL,'DRIVR','LFCLT',-121.921776,37.496952)
+, (30,'Driver5','TESTING','Rinoa','Clark','superman1@gmail.com','4086074331',NULL,'DRIVR','LFCLT',-122.19276,37.33418);
 
 INSERT INTO T_CODES VALUES ('ADMIN','USER','Adminstrative Users',1, CURRENT_TIMESTAMP);
 INSERT INTO T_CODES VALUES ('DRIVR','USER','Drivers',1, CURRENT_TIMESTAMP);
