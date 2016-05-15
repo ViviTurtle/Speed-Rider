@@ -211,7 +211,7 @@ include("../includes/headerL.php");
                       //  drawMap(res[0],res[1])
                         $(".overlay").hide();
                         $(".modal").hide();
-                        $("#btn_dropoff").show();
+                        $("#btn_complete").show();
                         $("#btn_directions").hide();
                         $("#drop_long").text(res[0]);
                         $("#drop_lat").text(res[1]); 

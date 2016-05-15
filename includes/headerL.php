@@ -99,7 +99,7 @@
 <!-- Navigation Bar -->
 <div class = "navbartop">
     
-    <a href="."><img src="/img/logowhite.png" class="logo" alt="SpeedRider"></a>
+    <a href="/index.php"><img src="/img/logowhite.png" class="logo" alt="SpeedRider"></a>
     <ul class = "navattop">
         <li><?php echo '<a id = "login-trigger">Welcome <b>'.$UserInf->FNAME.'</b><span>▲</span>:</a>' ?>
             <div id="login-content">

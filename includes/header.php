@@ -54,7 +54,7 @@
 <!-- Navigation Bar -->
 <div class = "navbartop">
 
-    <a href="."><img src="/img/logowhite.png" class="logo" alt="SpeedRider"></a>
+    <a href="/index.php"><img src="/img/logowhite.png" class="logo" alt="SpeedRider"></a>
 
     
 </div>
