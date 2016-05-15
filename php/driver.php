@@ -159,7 +159,7 @@ include("../includes/headerL.php");
                         $(".overlay").hide();
                         $(".modal").hide();
                         $("#btn_request").hide();
-                        $("#btn_complete").show();
+                        $("#btn_directions").show();
                         $("#client_username_hidden").text($client_user);
                         getClientLoc();
                         // alert("Client Usename {$client_user} ")

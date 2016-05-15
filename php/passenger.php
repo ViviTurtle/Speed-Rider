@@ -91,7 +91,7 @@ while ($row = mysqli_fetch_object($driverL)) {
     <div id="map" class="col-md-8" style="height: 75%;">
     </div>
     <div class="vcenter col-md-8 col-md-offset-2">
-	<p class="vcenter" id="Crappo">Welcome! Thank you for using Speed Rider where speed trumps safety. Please
+	<p class="vcenter" id="Crappo" style="background-color: transparent; height: 20%;">Welcome! Thank you for using Speed Rider where speed trumps safety. Please
             enter your final destination below and we'll calculate the time and distance it will take us to get you there.
             Thanks for choosing Speed Rider!
             
