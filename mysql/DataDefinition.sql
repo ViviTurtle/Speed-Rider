@@ -92,7 +92,10 @@ INSERT INTO `T_USER` VALUES
 , (26,'Driver16','TESTING','Kat','Dragon','swimman3@gmail.com','4086074351',NULL,'DRIVR','LFCLT',-121.32560,37.55424)
 , (27,'Driver14','TESTING','Lindsay','Lohan','trainwreck@gmail.com','69696969',NULL,'DRIVR','LFCLT',-121.873024,37.667815) 
 , (28,'Driver15','TESTING','Hillary','Clinton','nonencrypted@emailserver.com','4088421234',NULL,'DRIVR','LFCLT',-122.098244,37.683033)
-, (29,'Driver16','TESTING','Kate','Spade','purses@blah.gov','5104234231',NULL,'DRIVR','LFCLT',-121.921776,37.496952)
+, (29,'Driver16','TESTING','Kate','Spade','purses@blah.gov','5104234231',NULL,'DRIVR','LFCLT',-122.317676,37.560652)
+, (31,'Driver17','TESTING','Kate','Spade','purses@blah.gov','5104234231',NULL,'DRIVR','LFCLT',-121.921776,37.496952)
+, (32,'Driver18','TESTING','Kate','Spade','purses@blah.gov','5104234231',NULL,'DRIVR','LFCLT',-122.287801,37.561652)
+, (33,'Driver19','TESTING','Kate','Spade','purses@blah.gov','5104234231',NULL,'DRIVR','LFCLT',-122.317142,37.533020)
 , (30,'Driver5','TESTING','Rinoa','Clark','superman1@gmail.com','4086074331',NULL,'DRIVR','LFCLT',-122.19276,37.33418);
 
 INSERT INTO T_CODES VALUES ('ADMIN','USER','Adminstrative Users',1, CURRENT_TIMESTAMP);
